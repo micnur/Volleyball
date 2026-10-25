@@ -111,15 +111,15 @@ fun RefereeMatchScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .padding(horizontal = 10.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(34.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
                             .background(VolleyballGold),
                         contentAlignment = Alignment.Center
                     ) {
@@ -127,20 +127,20 @@ fun RefereeMatchScreen(
                             imageVector = Icons.Default.SportsVolleyball,
                             contentDescription = "VolleyRef",
                             tint = CourtDark,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Column {
                         Text(
                             text = "VOLLEYREF",
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
                         Text(
                             text = "FIVB 6x6 Referee Console",
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             color = Color(0xFF94A3B8)
                         )
                     }
@@ -150,45 +150,49 @@ fun RefereeMatchScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = { viewModel.openLineupDialog() },
-                        modifier = Modifier.testTag("nav_set_lineup_btn")
+                        modifier = Modifier.size(36.dp).testTag("nav_set_lineup_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.FactCheck,
                             contentDescription = "Set Line-up Sheet",
-                            tint = VolleyballGold
+                            tint = VolleyballGold,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 
                     IconButton(
                         onClick = { viewModel.navigateTo(RefereeScreen.MATCH_LOG) },
-                        modifier = Modifier.testTag("nav_match_log_btn")
+                        modifier = Modifier.size(36.dp).testTag("nav_match_log_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.History,
                             contentDescription = "Score History",
-                            tint = RefereeWhistle
+                            tint = RefereeWhistle,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 
                     IconButton(
                         onClick = { viewModel.navigateTo(RefereeScreen.RULES_CONFIG) },
-                        modifier = Modifier.testTag("nav_rules_config_btn")
+                        modifier = Modifier.size(36.dp).testTag("nav_rules_config_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "FIVB Rules Settings",
-                            tint = Color(0xFFCBD5E1)
+                            tint = Color(0xFFCBD5E1),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 
                     IconButton(
                         onClick = { viewModel.navigateTo(RefereeScreen.MATCH_SETUP) },
-                        modifier = Modifier.testTag("nav_match_setup_btn")
+                        modifier = Modifier.size(36.dp).testTag("nav_match_setup_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "New Match Setup",
-                            tint = VolleyballGold
+                            tint = VolleyballGold,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -428,7 +432,7 @@ fun RefereeMatchScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Referee Controls Section
             RefereeControlsSection(
@@ -451,7 +455,7 @@ fun RefereeMatchScreen(
                 onSanction = { showSanctionDialog = true }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(6.dp))
         }
     }
 
@@ -548,18 +552,18 @@ private fun RefereeControlsSection(
             .fillMaxWidth()
             .testTag("referee_controls_section"),
         color = CourtSurface,
-        shape = RoundedCornerShape(18.dp),
-        tonalElevation = 4.dp
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = 3.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(8.dp)
         ) {
             // Main Big Point Buttons Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Point Left Team Button
@@ -567,23 +571,23 @@ private fun RefereeControlsSection(
                     onClick = { onScorePoint(teamLeft, false) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(72.dp)
+                        .height(52.dp)
                         .testTag("score_left_point_btn"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(teamLeft.colorHex),
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "+1 ${teamLeft.shortCode}",
-                            fontSize = 20.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
                             text = "POINT",
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFE2E8F0)
                         )
@@ -592,7 +596,7 @@ private fun RefereeControlsSection(
 
                 // Center Fast Tools: Undo & Sanction
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Undo Button
@@ -600,7 +604,7 @@ private fun RefereeControlsSection(
                         onClick = onUndo,
                         enabled = canUndo,
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(32.dp)
                             .background(if (canUndo) CourtSurfaceHigh else Color(0xFF1E293B), CircleShape)
                             .border(1.dp, if (canUndo) RefereeWhistle else Color(0xFF334155), CircleShape)
                             .testTag("undo_button")
@@ -609,7 +613,7 @@ private fun RefereeControlsSection(
                             imageVector = Icons.AutoMirrored.Filled.Undo,
                             contentDescription = "Undo",
                             tint = if (canUndo) RefereeWhistle else Color(0xFF64748B),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
 
@@ -617,7 +621,7 @@ private fun RefereeControlsSection(
                     IconButton(
                         onClick = onSanction,
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(32.dp)
                             .background(CourtSurfaceHigh, CircleShape)
                             .border(1.dp, SanctionYellow, CircleShape)
                             .testTag("sanction_button")
@@ -626,7 +630,7 @@ private fun RefereeControlsSection(
                             imageVector = Icons.Default.Gavel,
                             contentDescription = "Sanction Cards",
                             tint = SanctionYellow,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -636,23 +640,23 @@ private fun RefereeControlsSection(
                     onClick = { onScorePoint(teamRight, false) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(72.dp)
+                        .height(52.dp)
                         .testTag("score_right_point_btn"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(teamRight.colorHex),
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "+1 ${teamRight.shortCode}",
-                            fontSize = 20.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
                             text = "POINT",
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFE2E8F0)
                         )
@@ -660,7 +664,7 @@ private fun RefereeControlsSection(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Sub, Timeout & Detailed Rally Tag Row
             Row(
@@ -669,60 +673,65 @@ private fun RefereeControlsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Left Team: Timeout & Sub
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     OutlinedButton(
                         onClick = { onTimeout(teamLeft) },
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.testTag("timeout_left_btn"),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(32.dp).testTag("timeout_left_btn"),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
-                        Icon(Icons.Default.Timer, null, tint = SanctionYellow, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("T.O.", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.Timer, null, tint = SanctionYellow, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("T.O.", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
                         onClick = { onSub(teamLeft) },
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.testTag("sub_left_btn"),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(32.dp).testTag("sub_left_btn"),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
-                        Icon(Icons.Default.SwapVert, null, tint = RefereeWhistle, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("SUB", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.SwapVert, null, tint = RefereeWhistle, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("SUB", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
                 // Center: Detailed Tag button
                 TextButton(
                     onClick = { onScorePoint(teamLeft, true) },
-                    modifier = Modifier.testTag("tag_rally_btn")
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+                    modifier = Modifier.height(32.dp).testTag("tag_rally_btn")
                 ) {
-                    Text("Tag Rally...", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                    Text("Tag Rally...", fontSize = 10.sp, color = Color(0xFF94A3B8))
                 }
 
                 // Right Team: Sub & Timeout
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     OutlinedButton(
                         onClick = { onSub(teamRight) },
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.testTag("sub_right_btn"),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(32.dp).testTag("sub_right_btn"),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
-                        Icon(Icons.Default.SwapVert, null, tint = RefereeWhistle, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("SUB", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.SwapVert, null, tint = RefereeWhistle, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("SUB", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
                         onClick = { onTimeout(teamRight) },
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.testTag("timeout_right_btn"),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(32.dp).testTag("timeout_right_btn"),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
-                        Icon(Icons.Default.Timer, null, tint = SanctionYellow, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("T.O.", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.Timer, null, tint = SanctionYellow, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("T.O.", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

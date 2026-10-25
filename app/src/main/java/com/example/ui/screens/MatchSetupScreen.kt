@@ -83,15 +83,6 @@ fun MatchSetupScreen(
 
     var serverFirstTeamId by remember { mutableStateOf("team_a") }
 
-    val presetColors = listOf(
-        0xFFF59E0B, // Gold / Amber
-        0xFFEF4444, // Red
-        0xFF3B82F6, // Blue
-        0xFF10B981, // Emerald Green
-        0xFF8B5CF6, // Purple
-        0xFFF97316  // Orange
-    )
-
     fun startConfiguredMatch() {
         val rosterA = currentMatch.teamA.roster.ifEmpty { MatchRepository.createDefaultTeamA().roster }
         val rosterB = currentMatch.teamB.roster.ifEmpty { MatchRepository.createDefaultTeamB().roster }
@@ -276,25 +267,10 @@ fun MatchSetupScreen(
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Team Color:", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        presetColors.forEach { colorHex ->
-                            val isSelected = teamAColorHex == colorHex
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(colorHex))
-                                    .border(
-                                        width = if (isSelected) 3.dp else 0.dp,
-                                        color = if (isSelected) Color.White else Color.Transparent,
-                                        shape = CircleShape
-                                    )
-                                    .clickable { teamAColorHex = colorHex }
-                            )
-                        }
-                    }
+                    ShirtColorSelector(
+                        selectedColorHex = teamAColorHex,
+                        onColorSelected = { teamAColorHex = it }
+                    )
                 }
             }
 
@@ -351,25 +327,10 @@ fun MatchSetupScreen(
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Team Color:", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        presetColors.forEach { colorHex ->
-                            val isSelected = teamBColorHex == colorHex
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(colorHex))
-                                    .border(
-                                        width = if (isSelected) 3.dp else 0.dp,
-                                        color = if (isSelected) Color.White else Color.Transparent,
-                                        shape = CircleShape
-                                    )
-                                    .clickable { teamBColorHex = colorHex }
-                            )
-                        }
-                    }
+                    ShirtColorSelector(
+                        selectedColorHex = teamBColorHex,
+                        onColorSelected = { teamBColorHex = it }
+                    )
                 }
             }
 
@@ -448,6 +409,108 @@ fun MatchSetupScreen(
                 Icon(Icons.Default.PlayArrow, null, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Start Match & Open Stand Console", fontSize = 16.sp, fontWeight = FontWeight.Black)
+            }
+        }
+    }
+}
+
+data class VolleyballShirtColor(
+    val hex: Long,
+    val name: String,
+    val checkTint: Long = 0xFFFFFFFF
+)
+
+val FIVB_SHIRT_PALETTE = listOf(
+    VolleyballShirtColor(0xFF2563EB, "Royal Blue"),
+    VolleyballShirtColor(0xFF1E3A8A, "Navy Blue"),
+    VolleyballShirtColor(0xFF0284C7, "Sky Cyan"),
+    VolleyballShirtColor(0xFF0D9488, "Teal Green"),
+    VolleyballShirtColor(0xFF059669, "Pine Green"),
+    VolleyballShirtColor(0xFF84CC16, "Neon Lime", checkTint = 0xFF000000),
+    VolleyballShirtColor(0xFFEAB308, "Volley Gold", checkTint = 0xFF000000),
+    VolleyballShirtColor(0xFFF59E0B, "Amber Orange"),
+    VolleyballShirtColor(0xFFEA580C, "Tangerine"),
+    VolleyballShirtColor(0xFFDC2626, "Crimson Red"),
+    VolleyballShirtColor(0xFF881337, "Burgundy Wine"),
+    VolleyballShirtColor(0xFFDB2777, "Hot Pink"),
+    VolleyballShirtColor(0xFF7C3AED, "Electric Violet"),
+    VolleyballShirtColor(0xFF4C1D95, "Deep Indigo"),
+    VolleyballShirtColor(0xFF1E293B, "Charcoal Black"),
+    VolleyballShirtColor(0xFFE2E8F0, "Silver White", checkTint = 0xFF000000)
+)
+
+@Composable
+private fun ShirtColorSelector(
+    selectedColorHex: Long,
+    onColorSelected: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val currentColor = FIVB_SHIRT_PALETTE.find { it.hex == selectedColorHex }
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Jersey / Shirt Color",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF94A3B8)
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(Color(selectedColorHex))
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = currentColor?.name ?: "Custom Color",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Display 2 rows of 8 swatches
+        val chunked = FIVB_SHIRT_PALETTE.chunked(8)
+        chunked.forEach { rowColors ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 3.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                rowColors.forEach { shirtColor ->
+                    val isSelected = selectedColorHex == shirtColor.hex
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(Color(shirtColor.hex))
+                            .border(
+                                width = if (isSelected) 2.5.dp else 1.dp,
+                                color = if (isSelected) Color.White else CourtLines,
+                                shape = CircleShape
+                            )
+                            .clickable { onColorSelected(shirtColor.hex) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected) {
+                            Box(
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(shirtColor.checkTint))
+                            )
+                        }
+                    }
+                }
             }
         }
     }

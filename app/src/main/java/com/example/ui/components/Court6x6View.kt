@@ -155,10 +155,10 @@ fun Court6x6View(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .height(175.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFF0F172A))
-                    .border(1.dp, CourtLines, RoundedCornerShape(12.dp))
+                    .border(1.dp, CourtLines, RoundedCornerShape(10.dp))
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize()
@@ -178,7 +178,7 @@ fun Court6x6View(
                     // CENTER NET
                     Box(
                         modifier = Modifier
-                            .width(14.dp)
+                            .width(10.dp)
                             .fillMaxHeight()
                             .background(
                                 Brush.verticalGradient(
@@ -196,7 +196,7 @@ fun Court6x6View(
                     ) {
                         Text(
                             text = "NET",
-                            fontSize = 8.sp,
+                            fontSize = 7.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
@@ -358,20 +358,20 @@ private fun PlayerCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .height(48.dp)
+            .clip(RoundedCornerShape(6.dp))
             .background(backgroundColor)
             .border(
-                width = if (isServer) 2.dp else 1.dp,
+                width = if (isServer) 1.5.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(6.dp)
             )
             .clickable(enabled = player != null) {
                 if (player != null) {
                     onPlayerClick(pos, player)
                 }
             }
-            .padding(4.dp)
+            .padding(2.dp)
             .testTag("player_pos_${team.id}_$pos")
     ) {
         Column(
@@ -386,12 +386,12 @@ private fun PlayerCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFF334155), RoundedCornerShape(3.dp))
-                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                        .background(Color(0xFF334155), RoundedCornerShape(2.dp))
+                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
                 ) {
                     Text(
                         text = "P$pos",
-                        fontSize = 9.sp,
+                        fontSize = 7.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE2E8F0)
                     )
@@ -401,19 +401,19 @@ private fun PlayerCard(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .background(VolleyballGold, RoundedCornerShape(3.dp))
-                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                            .background(VolleyballGold, RoundedCornerShape(2.dp))
+                            .padding(horizontal = 3.dp, vertical = 0.5.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.SportsVolleyball,
                             contentDescription = "Server",
                             tint = CourtDark,
-                            modifier = Modifier.size(10.dp)
+                            modifier = Modifier.size(8.dp)
                         )
-                        Spacer(modifier = Modifier.width(2.dp))
+                        Spacer(modifier = Modifier.width(1.dp))
                         Text(
                             text = "SERVE",
-                            fontSize = 8.sp,
+                            fontSize = 7.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
@@ -421,12 +421,12 @@ private fun PlayerCard(
                 } else if (isLibero) {
                     Box(
                         modifier = Modifier
-                            .background(LiberoBadge, RoundedCornerShape(3.dp))
-                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                            .background(LiberoBadge, RoundedCornerShape(2.dp))
+                            .padding(horizontal = 3.dp, vertical = 0.5.dp)
                     ) {
                         Text(
-                            text = "LIBERO",
-                            fontSize = 8.sp,
+                            text = "L",
+                            fontSize = 7.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -442,16 +442,16 @@ private fun PlayerCard(
             ) {
                 Text(
                     text = player?.let { "#${it.number}" } ?: "--",
-                    fontSize = 18.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Black,
                     color = if (isServer) VolleyballGold else Color.White
                 )
 
                 if (player != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text = "(${player.role.code})",
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         color = Color(0xFF94A3B8),
                         fontWeight = FontWeight.Medium
                     )
@@ -461,7 +461,7 @@ private fun PlayerCard(
             // Player Name & Captain flag
             Text(
                 text = player?.let { it.name + (if (it.isCaptain) " (C)" else "") } ?: "Empty",
-                fontSize = 10.sp,
+                fontSize = 8.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFCBD5E1),
                 maxLines = 1,

@@ -91,7 +91,7 @@ fun ScoreBoardHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top Bar: Set indicator, Set breakdown chips, Switch Sides button
@@ -104,29 +104,29 @@ fun ScoreBoardHeader(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .background(VolleyballGold, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(VolleyballGold, RoundedCornerShape(5.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = "SET ${matchState.currentSet}" + (if (matchState.isDecidingSet) " (DECIDING)" else ""),
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
 
                     // Alert badges: Set point / Match point
                     if (matchState.isMatchPoint()) {
                         Box(
                             modifier = Modifier
-                                .background(SanctionRed, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(SanctionRed, RoundedCornerShape(5.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = "MATCH POINT",
-                                fontSize = 11.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -134,12 +134,12 @@ fun ScoreBoardHeader(
                     } else if (matchState.isSetPoint()) {
                         Box(
                             modifier = Modifier
-                                .background(SanctionYellow, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(SanctionYellow, RoundedCornerShape(5.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = "SET POINT",
-                                fontSize = 11.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = CourtDark
                             )
@@ -158,11 +158,11 @@ fun ScoreBoardHeader(
                         Box(
                             modifier = Modifier
                                 .background(CourtSurfaceHigh, RoundedCornerShape(4.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .padding(horizontal = 5.dp, vertical = 1.dp)
                         ) {
                             Text(
                                 text = "S${res.setNumber}: $leftS-$rightS",
-                                fontSize = 11.sp,
+                                fontSize = 10.sp,
                                 color = Color(0xFFCBD5E1),
                                 fontWeight = FontWeight.Medium
                             )
@@ -172,19 +172,20 @@ fun ScoreBoardHeader(
                     IconButton(
                         onClick = onSwitchSidesClick,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(26.dp)
                             .testTag("switch_sides_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.SwapHoriz,
                             contentDescription = "Switch Court Sides",
-                            tint = RefereeWhistle
+                            tint = RefereeWhistle,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Main Score Row: Left Team | Big Score | Sets | Big Score | Right Team
             Row(
@@ -200,46 +201,46 @@ fun ScoreBoardHeader(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(10.dp)
+                                .size(9.dp)
                                 .clip(CircleShape)
                                 .background(Color(teamLeft.colorHex))
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = teamLeft.name,
-                            fontSize = 17.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1
                         )
                         if (isLeftServing) {
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.Default.SportsVolleyball,
                                 contentDescription = "Serving",
                                 tint = VolleyballGold,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(15.dp)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     // Left Indicators: Timeouts & Subs
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         // Timeouts dots
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text(text = "TO:", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                            Text(text = "TO:", fontSize = 9.sp, color = Color(0xFF94A3B8))
                             for (i in 1..maxTimeouts) {
                                 Box(
                                     modifier = Modifier
-                                        .size(8.dp)
+                                        .size(7.dp)
                                         .clip(CircleShape)
                                         .background(
                                             if (i <= timeoutsUsedLeft) SanctionYellow else CourtLines
@@ -251,7 +252,7 @@ fun ScoreBoardHeader(
                         // Substitutions count
                         Text(
                             text = "SUB: $subsUsedLeft/$maxSubs",
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             color = if (subsUsedLeft >= maxSubs) SanctionRed else Color(0xFF94A3B8),
                             fontWeight = FontWeight.Medium
                         )
@@ -266,7 +267,7 @@ fun ScoreBoardHeader(
                     // Left Score
                     Text(
                         text = scoreLeft.toString().padStart(2, '0'),
-                        fontSize = 44.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         color = if (isLeftServing) VolleyballGold else Color.White,
@@ -276,23 +277,23 @@ fun ScoreBoardHeader(
                     // Sets won & Colon
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 10.dp)
+                        modifier = Modifier.padding(horizontal = 6.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .background(CourtDark, RoundedCornerShape(4.dp))
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                .background(CourtDark, RoundedCornerShape(3.dp))
+                                .padding(horizontal = 6.dp, vertical = 1.dp)
                         ) {
                             Text(
-                                text = "SETS $setsWonLeft - $setsWonRight",
-                                fontSize = 11.sp,
+                                text = "$setsWonLeft - $setsWonRight",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFE2E8F0)
                             )
                         }
                         Text(
                             text = ":",
-                            fontSize = 28.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -301,7 +302,7 @@ fun ScoreBoardHeader(
                     // Right Score
                     Text(
                         text = scoreRight.toString().padStart(2, '0'),
-                        fontSize = 44.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         color = if (isRightServing) VolleyballGold else Color.White,
@@ -323,37 +324,37 @@ fun ScoreBoardHeader(
                                 imageVector = Icons.Default.SportsVolleyball,
                                 contentDescription = "Serving",
                                 tint = VolleyballGold,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(15.dp)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                         }
                         Text(
                             text = teamRight.name,
-                            fontSize = 17.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1,
                             textAlign = TextAlign.End
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Box(
                             modifier = Modifier
-                                .size(10.dp)
+                                .size(9.dp)
                                 .clip(CircleShape)
                                 .background(Color(teamRight.colorHex))
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     // Right Indicators: Timeouts & Subs
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
                             text = "SUB: $subsUsedRight/$maxSubs",
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             color = if (subsUsedRight >= maxSubs) SanctionRed else Color(0xFF94A3B8),
                             fontWeight = FontWeight.Medium
                         )
@@ -361,13 +362,13 @@ fun ScoreBoardHeader(
                         // Timeouts dots
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text(text = "TO:", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                            Text(text = "TO:", fontSize = 9.sp, color = Color(0xFF94A3B8))
                             for (i in 1..maxTimeouts) {
                                 Box(
                                     modifier = Modifier
-                                        .size(8.dp)
+                                        .size(7.dp)
                                         .clip(CircleShape)
                                         .background(
                                             if (i <= timeoutsUsedRight) SanctionYellow else CourtLines
@@ -381,11 +382,11 @@ fun ScoreBoardHeader(
 
             // Target Points Subtitle
             Text(
-                text = "Target: ${matchState.targetPointsCurrentSet} pts (Advantage: +${matchState.rules.advantageRequired}" +
+                text = "Target: ${matchState.targetPointsCurrentSet} pts (+${matchState.rules.advantageRequired}" +
                         (matchState.capPointsCurrentSet?.let { ", Cap: $it" } ?: "") + ")",
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 color = Color(0xFF64748B),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 2.dp)
             )
         }
     }
