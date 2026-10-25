@@ -714,6 +714,61 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
         persistCurrentMatch()
     }
 
+    /**
+     * Update or add a player's name and shirt number
+     */
+    fun updatePlayer(teamId: String, updatedPlayer: Player) {
+        val current = _matchState.value
+        val isTeamA = teamId == current.teamA.id
+        val targetTeam = if (isTeamA) current.teamA else current.teamB
+
+        val existingIndex = targetTeam.roster.indexOfFirst { it.id == updatedPlayer.id }
+        val newRoster = if (existingIndex >= 0) {
+            targetTeam.roster.toMutableList().apply { set(existingIndex, updatedPlayer) }
+        } else {
+            targetTeam.roster + updatedPlayer
+        }
+
+        val newTeam = targetTeam.copy(roster = newRoster)
+
+        // Update active rotations if player is on court
+        val targetRotation = if (isTeamA) current.teamARotation else current.teamBRotation
+        val newPositions = targetRotation.positions.mapValues { (_, p) ->
+            if (p.id == updatedPlayer.id) updatedPlayer else p
+        }
+        val newStartingLineup = targetRotation.startingLineup.mapValues { (_, p) ->
+            if (p.id == updatedPlayer.id) updatedPlayer else p
+        }
+        val updatedRotation = targetRotation.copy(
+            positions = newPositions,
+            startingLineup = newStartingLineup
+        )
+
+        // Update lineup history
+        val newHistory = current.setLineupHistory.mapValues { (_, record) ->
+            if (isTeamA) {
+                record.copy(
+                    teamALineup = record.teamALineup.mapValues { if (it.value.id == updatedPlayer.id) updatedPlayer else it.value },
+                    teamALibero = if (record.teamALibero?.id == updatedPlayer.id) updatedPlayer else record.teamALibero
+                )
+            } else {
+                record.copy(
+                    teamBLineup = record.teamBLineup.mapValues { if (it.value.id == updatedPlayer.id) updatedPlayer else it.value },
+                    teamBLibero = if (record.teamBLibero?.id == updatedPlayer.id) updatedPlayer else record.teamBLibero
+                )
+            }
+        }
+
+        _matchState.value = current.copy(
+            teamA = if (isTeamA) newTeam else current.teamA,
+            teamB = if (!isTeamA) newTeam else current.teamB,
+            teamARotation = if (isTeamA) updatedRotation else current.teamARotation,
+            teamBRotation = if (!isTeamA) updatedRotation else current.teamBRotation,
+            setLineupHistory = newHistory
+        )
+        persistCurrentMatch()
+    }
+
     private fun persistCurrentMatch() {
         viewModelScope.launch {
             repository.saveMatch(_matchState.value)

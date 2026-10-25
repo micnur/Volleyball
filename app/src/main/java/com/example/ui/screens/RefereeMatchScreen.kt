@@ -521,6 +521,9 @@ fun RefereeMatchScreen(
             matchState = matchState,
             targetSetNumber = matchState.currentSet,
             onDismiss = { viewModel.closeLineupDialog() },
+            onUpdatePlayer = { teamId, player ->
+                viewModel.updatePlayer(teamId, player)
+            },
             onConfirmLineups = { setNum, teamALineup, teamBLineup, teamALibero, teamBLibero, serverId ->
                 viewModel.applyStartingLineups(
                     setNumber = setNum,

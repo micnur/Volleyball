@@ -22,10 +22,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.SportsVolleyball
@@ -88,6 +90,7 @@ fun SetLineupEntryDialog(
     matchState: MatchState,
     targetSetNumber: Int = matchState.currentSet,
     onDismiss: () -> Unit,
+    onUpdatePlayer: ((teamId: String, player: Player) -> Unit)? = null,
     onConfirmLineups: (
         setNumber: Int,
         teamALineup: Map<Int, Player>,
@@ -98,6 +101,14 @@ fun SetLineupEntryDialog(
     ) -> Unit
 ) {
     var activeTeamTab by remember { mutableIntStateOf(0) } // 0 = Team A, 1 = Team B
+
+    // Mutable Rosters to support adding & editing players
+    var rosterA by remember { mutableStateOf(matchState.teamA.roster) }
+    var rosterB by remember { mutableStateOf(matchState.teamB.roster) }
+
+    // Dialog state for editing a player's name and shirt number
+    var playerBeingEdited by remember { mutableStateOf<Player?>(null) }
+    var showEditPlayerDialog by remember { mutableStateOf(false) }
 
     // Team A Lineup State (Positions 1..6)
     var teamALineup by remember {
@@ -427,6 +438,12 @@ fun SetLineupEntryDialog(
                                     map.remove(4)
                                     updateCurrentLineup(map)
                                 },
+                                onEditPlayer = {
+                                    currentLineup[4]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             )
                             PositionSlotCard(
@@ -441,6 +458,12 @@ fun SetLineupEntryDialog(
                                     map.remove(3)
                                     updateCurrentLineup(map)
                                 },
+                                onEditPlayer = {
+                                    currentLineup[3]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             )
                             PositionSlotCard(
@@ -454,6 +477,12 @@ fun SetLineupEntryDialog(
                                     val map = currentLineup.toMutableMap()
                                     map.remove(2)
                                     updateCurrentLineup(map)
+                                },
+                                onEditPlayer = {
+                                    currentLineup[2]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
                                 },
                                 modifier = Modifier.weight(1f)
                             )
@@ -490,6 +519,12 @@ fun SetLineupEntryDialog(
                                     map.remove(5)
                                     updateCurrentLineup(map)
                                 },
+                                onEditPlayer = {
+                                    currentLineup[5]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             )
                             PositionSlotCard(
@@ -504,6 +539,12 @@ fun SetLineupEntryDialog(
                                     map.remove(6)
                                     updateCurrentLineup(map)
                                 },
+                                onEditPlayer = {
+                                    currentLineup[6]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             )
                             PositionSlotCard(
@@ -517,6 +558,12 @@ fun SetLineupEntryDialog(
                                     val map = currentLineup.toMutableMap()
                                     map.remove(1)
                                     updateCurrentLineup(map)
+                                },
+                                onEditPlayer = {
+                                    currentLineup[1]?.let {
+                                        playerBeingEdited = it
+                                        showEditPlayerDialog = true
+                                    }
                                 },
                                 modifier = Modifier.weight(1f)
                             )
@@ -575,15 +622,36 @@ fun SetLineupEntryDialog(
                 }
 
                 // Player Selection Tray
-                Text(
-                    text = "SELECT PLAYER FOR POSITION ${ROMAN_POSITIONS[activePositionSlot]}:",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = VolleyballGold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+                val currentRoster = if (activeTeamTab == 0) rosterA else rosterB
+                val availableRoster = currentRoster.filter { !it.isLibero }
 
-                val availableRoster = activeTeam.roster.filter { !it.isLibero }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "SELECT PLAYER FOR POSITION ${ROMAN_POSITIONS[activePositionSlot]}:",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = VolleyballGold
+                    )
+
+                    TextButton(
+                        onClick = {
+                            playerBeingEdited = null
+                            showEditPlayerDialog = true
+                        },
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                        modifier = Modifier.testTag("add_player_lineup_dialog_btn")
+                    ) {
+                        Icon(Icons.Default.Add, null, modifier = Modifier.size(13.dp), tint = VolleyballGold)
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("+ Add Player", fontSize = 10.sp, color = VolleyballGold, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
 
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -627,12 +695,26 @@ fun SetLineupEntryDialog(
                                 .testTag("select_player_item_${player.number}")
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "#${player.number}",
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = if (isAssignedToCurrent) VolleyballGold else Color.White
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "#${player.number}",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = if (isAssignedToCurrent) VolleyballGold else Color.White
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Player Name / Number",
+                                        tint = VolleyballGold,
+                                        modifier = Modifier
+                                            .size(13.dp)
+                                            .clickable {
+                                                playerBeingEdited = player
+                                                showEditPlayerDialog = true
+                                            }
+                                    )
+                                }
                                 Text(
                                     text = player.name,
                                     fontSize = 11.sp,
@@ -759,6 +841,45 @@ fun SetLineupEntryDialog(
             }
         }
     }
+
+    // Edit Player Dialog (Name & Shirt Number)
+    if (showEditPlayerDialog) {
+        val targetTeam = if (activeTeamTab == 0) matchState.teamA else matchState.teamB
+        EditPlayerDialog(
+            player = playerBeingEdited,
+            teamName = targetTeam.name,
+            teamColorHex = targetTeam.colorHex,
+            onDismiss = {
+                showEditPlayerDialog = false
+                playerBeingEdited = null
+            },
+            onSavePlayer = { updated ->
+                if (activeTeamTab == 0) {
+                    val idx = rosterA.indexOfFirst { it.id == updated.id }
+                    rosterA = if (idx >= 0) rosterA.toMutableList().apply { set(idx, updated) } else rosterA + updated
+                    val map = teamALineup.toMutableMap()
+                    map.entries.forEach { (pos, p) ->
+                        if (p.id == updated.id) map[pos] = updated
+                    }
+                    teamALineup = map
+                    if (teamALibero?.id == updated.id) teamALibero = updated
+                } else {
+                    val idx = rosterB.indexOfFirst { it.id == updated.id }
+                    rosterB = if (idx >= 0) rosterB.toMutableList().apply { set(idx, updated) } else rosterB + updated
+                    val map = teamBLineup.toMutableMap()
+                    map.entries.forEach { (pos, p) ->
+                        if (p.id == updated.id) map[pos] = updated
+                    }
+                    teamBLineup = map
+                    if (teamBLibero?.id == updated.id) teamBLibero = updated
+                }
+
+                onUpdatePlayer?.invoke(targetTeam.id, updated)
+                showEditPlayerDialog = false
+                playerBeingEdited = null
+            }
+        )
+    }
 }
 
 @Composable
@@ -770,6 +891,7 @@ private fun PositionSlotCard(
     isServer: Boolean,
     onSelectSlot: () -> Unit,
     onClearSlot: () -> Unit,
+    onEditPlayer: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val borderColor = when {
@@ -817,14 +939,25 @@ private fun PositionSlotCard(
                 }
 
                 if (player != null) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Clear",
-                        tint = Color(0xFF94A3B8),
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clickable { onClearSlot() }
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Player",
+                            tint = VolleyballGold,
+                            modifier = Modifier
+                                .size(13.dp)
+                                .clickable { onEditPlayer?.invoke() }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear",
+                            tint = Color(0xFF94A3B8),
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clickable { onClearSlot() }
+                        )
+                    }
                 }
             }
 

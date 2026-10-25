@@ -1,12 +1,14 @@
 package com.example.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,12 +19,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SportsVolleyball
 import androidx.compose.material3.Button
@@ -35,7 +41,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +62,7 @@ import com.example.data.repository.MatchRepository
 import com.example.model.Player
 import com.example.model.PositionRole
 import com.example.model.Team
+import com.example.ui.components.EditPlayerDialog
 import com.example.ui.theme.CourtDark
 import com.example.ui.theme.CourtLines
 import com.example.ui.theme.CourtSurface
@@ -76,23 +85,27 @@ fun MatchSetupScreen(
     var teamAName by remember { mutableStateOf(currentMatch.teamA.name) }
     var teamACode by remember { mutableStateOf(currentMatch.teamA.shortCode) }
     var teamAColorHex by remember { mutableStateOf(currentMatch.teamA.colorHex) }
+    var teamARoster by remember {
+        mutableStateOf(currentMatch.teamA.roster.ifEmpty { MatchRepository.createDefaultTeamA().roster })
+    }
 
     var teamBName by remember { mutableStateOf(currentMatch.teamB.name) }
     var teamBCode by remember { mutableStateOf(currentMatch.teamB.shortCode) }
     var teamBColorHex by remember { mutableStateOf(currentMatch.teamB.colorHex) }
+    var teamBRoster by remember {
+        mutableStateOf(currentMatch.teamB.roster.ifEmpty { MatchRepository.createDefaultTeamB().roster })
+    }
 
     var serverFirstTeamId by remember { mutableStateOf("team_a") }
+    var playerToEditInSetup by remember { mutableStateOf<Pair<String, Player?>?>(null) } // "team_a" / "team_b" to player
 
     fun startConfiguredMatch() {
-        val rosterA = currentMatch.teamA.roster.ifEmpty { MatchRepository.createDefaultTeamA().roster }
-        val rosterB = currentMatch.teamB.roster.ifEmpty { MatchRepository.createDefaultTeamB().roster }
-
         val teamA = Team(
             id = "team_a",
             name = teamAName.ifBlank { "Team A" },
             shortCode = teamACode.ifBlank { "TMA" }.take(4).uppercase(),
             colorHex = teamAColorHex,
-            roster = rosterA
+            roster = teamARoster
         )
 
         val teamB = Team(
@@ -100,7 +113,7 @@ fun MatchSetupScreen(
             name = teamBName.ifBlank { "Team B" },
             shortCode = teamBCode.ifBlank { "TMB" }.take(4).uppercase(),
             colorHex = teamBColorHex,
-            roster = rosterB
+            roster = teamBRoster
         )
 
         viewModel.startNewMatch(
@@ -154,66 +167,6 @@ fun MatchSetupScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Quick Team Presets
-            Card(
-                colors = CardDefaults.cardColors(containerColor = CourtSurface),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text("POPULAR MATCHUPS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                teamAName = "Brazil"
-                                teamACode = "BRA"
-                                teamAColorHex = 0xFFF59E0B
-                                teamBName = "Poland"
-                                teamBCode = "POL"
-                                teamBColorHex = 0xFFEF4444
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-                        ) {
-                            Text("BRA vs POL", fontSize = 11.sp)
-                        }
-
-                        OutlinedButton(
-                            onClick = {
-                                teamAName = "Italy"
-                                teamACode = "ITA"
-                                teamAColorHex = 0xFF3B82F6
-                                teamBName = "USA"
-                                teamBCode = "USA"
-                                teamBColorHex = 0xFFEF4444
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-                        ) {
-                            Text("ITA vs USA", fontSize = 11.sp)
-                        }
-
-                        OutlinedButton(
-                            onClick = {
-                                teamAName = "Japan"
-                                teamACode = "JPN"
-                                teamAColorHex = 0xFFEF4444
-                                teamBName = "France"
-                                teamBCode = "FRA"
-                                teamBColorHex = 0xFF3B82F6
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-                        ) {
-                            Text("JPN vs FRA", fontSize = 11.sp)
-                        }
-                    }
-                }
-            }
-
             // Team A Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = CourtSurface),
@@ -271,6 +224,87 @@ fun MatchSetupScreen(
                         selectedColorHex = teamAColorHex,
                         onColorSelected = { teamAColorHex = it }
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Team A Line-up Player Editing Section
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Line-up Players (${teamARoster.size})",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF94A3B8)
+                        )
+                        TextButton(
+                            onClick = { playerToEditInSetup = Pair("team_a", null) },
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                            modifier = Modifier.testTag("add_player_team_a_btn")
+                        ) {
+                            Icon(Icons.Default.Add, null, modifier = Modifier.size(13.dp), tint = VolleyballGold)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("+ Add Player", fontSize = 11.sp, color = VolleyballGold, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(teamARoster) { player ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = CourtSurfaceHigh,
+                                border = BorderStroke(1.dp, if (player.isLibero) Color(0xFFA855F7) else CourtLines),
+                                modifier = Modifier
+                                    .clickable { playerToEditInSetup = Pair("team_a", player) }
+                                    .testTag("setup_player_a_${player.number}")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "#${player.number}",
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = if (player.isLibero) Color(0xFFD8B4FE) else Color.White
+                                            )
+                                            if (player.isCaptain) {
+                                                Spacer(modifier = Modifier.width(3.dp))
+                                                Text("(C)", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = VolleyballGold)
+                                            }
+                                            if (player.isLibero) {
+                                                Spacer(modifier = Modifier.width(3.dp))
+                                                Text("[L]", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD8B4FE))
+                                            }
+                                        }
+                                        Text(
+                                            text = player.name,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color(0xFFCBD5E1),
+                                            maxLines = 1
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Player Name / Number",
+                                        tint = VolleyballGold,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -331,6 +365,87 @@ fun MatchSetupScreen(
                         selectedColorHex = teamBColorHex,
                         onColorSelected = { teamBColorHex = it }
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Team B Line-up Player Editing Section
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Line-up Players (${teamBRoster.size})",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF94A3B8)
+                        )
+                        TextButton(
+                            onClick = { playerToEditInSetup = Pair("team_b", null) },
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                            modifier = Modifier.testTag("add_player_team_b_btn")
+                        ) {
+                            Icon(Icons.Default.Add, null, modifier = Modifier.size(13.dp), tint = VolleyballGold)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("+ Add Player", fontSize = 11.sp, color = VolleyballGold, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(teamBRoster) { player ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = CourtSurfaceHigh,
+                                border = BorderStroke(1.dp, if (player.isLibero) Color(0xFFA855F7) else CourtLines),
+                                modifier = Modifier
+                                    .clickable { playerToEditInSetup = Pair("team_b", player) }
+                                    .testTag("setup_player_b_${player.number}")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "#${player.number}",
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = if (player.isLibero) Color(0xFFD8B4FE) else Color.White
+                                            )
+                                            if (player.isCaptain) {
+                                                Spacer(modifier = Modifier.width(3.dp))
+                                                Text("(C)", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = VolleyballGold)
+                                            }
+                                            if (player.isLibero) {
+                                                Spacer(modifier = Modifier.width(3.dp))
+                                                Text("[L]", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD8B4FE))
+                                            }
+                                        }
+                                        Text(
+                                            text = player.name,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color(0xFFCBD5E1),
+                                            maxLines = 1
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Player Name / Number",
+                                        tint = VolleyballGold,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -411,6 +526,36 @@ fun MatchSetupScreen(
                 Text("Start Match & Open Stand Console", fontSize = 16.sp, fontWeight = FontWeight.Black)
             }
         }
+    }
+
+    // Edit Player Dialog in Match Setup
+    playerToEditInSetup?.let { (teamKey, player) ->
+        val teamName = if (teamKey == "team_a") teamAName.ifBlank { "Team A" } else teamBName.ifBlank { "Team B" }
+        val teamColor = if (teamKey == "team_a") teamAColorHex else teamBColorHex
+        EditPlayerDialog(
+            player = player,
+            teamName = teamName,
+            teamColorHex = teamColor,
+            onDismiss = { playerToEditInSetup = null },
+            onSavePlayer = { updated ->
+                if (teamKey == "team_a") {
+                    val idx = teamARoster.indexOfFirst { it.id == updated.id }
+                    teamARoster = if (idx >= 0) {
+                        teamARoster.toMutableList().apply { set(idx, updated) }
+                    } else {
+                        teamARoster + updated
+                    }
+                } else {
+                    val idx = teamBRoster.indexOfFirst { it.id == updated.id }
+                    teamBRoster = if (idx >= 0) {
+                        teamBRoster.toMutableList().apply { set(idx, updated) }
+                    } else {
+                        teamBRoster + updated
+                    }
+                }
+                playerToEditInSetup = null
+            }
+        )
     }
 }
 
