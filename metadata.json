@@ -1,0 +1,6 @@
+{
+  "name": "VolleyRef",
+  "description": "FIVB 6x6 Volleyball Referee Companion with live set scoring, rotation tracking, customizable FIVB rules, and match logging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
