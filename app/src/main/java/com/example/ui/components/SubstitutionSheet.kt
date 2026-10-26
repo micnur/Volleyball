@@ -119,7 +119,7 @@ fun SubstitutionSheet(
                             Icon(Icons.Default.SwapVert, null, tint = VolleyballGold, modifier = Modifier.size(24.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "${team.name} Substitution",
+                                text = "${team.displayName} Substitution",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -222,7 +222,7 @@ fun SubstitutionSheet(
                                     .padding(horizontal = 8.dp, vertical = 6.dp)
                             ) {
                                 Text(
-                                    text = "#${p.number} ${p.name}",
+                                    text = p.displayLabel,
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = Color.White
@@ -256,7 +256,7 @@ fun SubstitutionSheet(
                                         .padding(horizontal = 8.dp, vertical = 6.dp)
                                 ) {
                                     Text(
-                                        text = "#${p.number} ${p.name}",
+                                        text = p.displayLabel,
                                         fontSize = 12.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                         color = Color.White

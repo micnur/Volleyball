@@ -181,7 +181,7 @@ fun ScoreHistoryScreen(
                                 color = Color.White
                             )
                             Text(
-                                text = "${matchState.teamA.name} vs ${matchState.teamB.name} (Sets ${matchState.setsWonTeamA}-${matchState.setsWonTeamB})",
+                                text = "${matchState.teamA.displayName} vs ${matchState.teamB.displayName} (Sets ${matchState.setsWonTeamA}-${matchState.setsWonTeamB})",
                                 fontSize = 11.sp,
                                 color = Color(0xFF94A3B8)
                             )
@@ -301,7 +301,7 @@ fun ScoreHistoryScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "${matchState.teamA.name}: $teamAPoints pts",
+                                text = "${matchState.teamA.displayName}: $teamAPoints pts",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -317,7 +317,7 @@ fun ScoreHistoryScreen(
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "${matchState.teamB.name}: $teamBPoints pts",
+                                text = "${matchState.teamB.displayName}: $teamBPoints pts",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -379,7 +379,7 @@ fun ScoreHistoryScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = VolleyballGold
                             )
-                            val serverCode = if (lineupRecord.firstServingTeamId == matchState.teamA.id) matchState.teamA.shortCode else matchState.teamB.shortCode
+                            val serverCode = if (lineupRecord.firstServingTeamId == matchState.teamA.id) matchState.teamA.displayCode else matchState.teamB.displayCode
                             Text(
                                 text = "1st Serve: $serverCode",
                                 fontSize = 10.sp,
@@ -395,15 +395,18 @@ fun ScoreHistoryScreen(
                             // Team A Starting 6
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = matchState.teamA.name + ":",
+                                    text = matchState.teamA.displayName + ":",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(matchState.teamA.colorHex)
                                 )
                                 (1..6).forEach { pos ->
                                     val p = lineupRecord.teamALineup[pos]
+                                    val label = p?.let {
+                                        if (it.name.isNotBlank()) "#${it.number} ${it.name}" else "#${it.number}"
+                                    } ?: "--"
                                     Text(
-                                        text = "Pos $pos: ${p?.let { "#${it.number} ${it.name}" } ?: "--"}",
+                                        text = "Pos $pos: $label",
                                         fontSize = 10.sp,
                                         color = Color(0xFFE2E8F0)
                                     )
@@ -413,15 +416,18 @@ fun ScoreHistoryScreen(
                             // Team B Starting 6
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = matchState.teamB.name + ":",
+                                    text = matchState.teamB.displayName + ":",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(matchState.teamB.colorHex)
                                 )
                                 (1..6).forEach { pos ->
                                     val p = lineupRecord.teamBLineup[pos]
+                                    val label = p?.let {
+                                        if (it.name.isNotBlank()) "#${it.number} ${it.name}" else "#${it.number}"
+                                    } ?: "--"
                                     Text(
-                                        text = "Pos $pos: ${p?.let { "#${it.number} ${it.name}" } ?: "--"}",
+                                        text = "Pos $pos: $label",
                                         fontSize = 10.sp,
                                         color = Color(0xFFE2E8F0)
                                     )
@@ -599,6 +605,9 @@ private fun ScoreHistoryItemCard(
         EventType.SET_START,
         EventType.SET_END,
         EventType.MATCH_END -> Color(0xFF8B5CF6)
+        EventType.TIMER_START -> Color(0xFF10B981)
+        EventType.TIMER_PAUSE -> VolleyballGold
+        EventType.TIMER_RESET -> Color(0xFF94A3B8)
         else -> Color(0xFF64748B)
     }
 
@@ -684,7 +693,7 @@ private fun ScoreHistoryItemCard(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = benefitingTeam.name,
+                                text = benefitingTeam.displayName,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -730,8 +739,10 @@ private fun ScoreHistoryItemCard(
 
                 // If players involved (substitutions or primary scorer)
                 if (event.subInPlayer != null && event.subOutPlayer != null) {
+                    val inStr = if (event.subInPlayer.name.isNotBlank()) "#${event.subInPlayer.number} ${event.subInPlayer.name}" else "#${event.subInPlayer.number}"
+                    val outStr = if (event.subOutPlayer.name.isNotBlank()) "#${event.subOutPlayer.number} ${event.subOutPlayer.name}" else "#${event.subOutPlayer.number}"
                     Text(
-                        text = "IN: #${event.subInPlayer.number} ${event.subInPlayer.name}  |  OUT: #${event.subOutPlayer.number} ${event.subOutPlayer.name}",
+                        text = "IN: $inStr  |  OUT: $outStr",
                         fontSize = 10.sp,
                         color = RefereeWhistle
                     )
@@ -773,18 +784,41 @@ private fun generateScoresheetExport(state: MatchState): String {
         appendLine("=========================================")
         appendLine("       VOLLEYREF FIVB SCORESHEET LOG     ")
         appendLine("=========================================")
-        appendLine("Match: ${state.teamA.name} vs ${state.teamB.name}")
-        appendLine("Sets Result: ${state.teamA.name} ${state.setsWonTeamA} - ${state.setsWonTeamB} ${state.teamB.name}")
+        appendLine("Match: ${state.teamA.displayName} vs ${state.teamB.displayName}")
+        appendLine("Sets Result: ${state.teamA.displayName} ${state.setsWonTeamA} - ${state.setsWonTeamB} ${state.teamB.displayName}")
         appendLine("Format: ${state.rules.format.displayName}")
         appendLine("Completed Sets: " + state.completedSets.joinToString(", ") { "Set ${it.setNumber}: ${it.scoreTeamA}-${it.scoreTeamB}" })
+        if (state.officials.hasAnyOfficial) {
+            appendLine("-----------------------------------------")
+            appendLine("MATCH OFFICIALS (FIVB CORPS):")
+            if (state.officials.firstReferee.isNotBlank()) appendLine("  1st Referee: ${state.officials.firstReferee}")
+            if (state.officials.secondReferee.isNotBlank()) appendLine("  2nd Referee: ${state.officials.secondReferee}")
+            val scorers = listOfNotNull(
+                state.officials.scorer1.takeIf { it.isNotBlank() }?.let { "1. $it (Official Scorer)" },
+                state.officials.scorer2.takeIf { it.isNotBlank() }?.let { "2. $it (Assistant Scorer)" },
+                state.officials.scorer3.takeIf { it.isNotBlank() }?.let { "3. $it" }
+            )
+            if (scorers.isNotEmpty()) {
+                appendLine("  Scorers:")
+                scorers.forEach { appendLine("    $it") }
+            }
+            val lines = listOfNotNull(
+                state.officials.lineReferee1.takeIf { it.isNotBlank() }?.let { "1. $it" },
+                state.officials.lineReferee2.takeIf { it.isNotBlank() }?.let { "2. $it" }
+            )
+            if (lines.isNotEmpty()) {
+                appendLine("  Line Referees:")
+                lines.forEach { appendLine("    $it") }
+            }
+        }
         appendLine("-----------------------------------------")
         appendLine("REGISTERED STARTING LINE-UPS (FIVB 7.3):")
         state.setLineupHistory.toSortedMap().forEach { (setNum, record) ->
             val aStr = (1..6).joinToString(" ") { "P$it:#${record.teamALineup[it]?.number ?: "--"}" }
             val bStr = (1..6).joinToString(" ") { "P$it:#${record.teamBLineup[it]?.number ?: "--"}" }
             appendLine("Set $setNum:")
-            appendLine("  ${state.teamA.shortCode}: $aStr")
-            appendLine("  ${state.teamB.shortCode}: $bStr")
+            appendLine("  ${state.teamA.displayCode}: $aStr")
+            appendLine("  ${state.teamB.displayCode}: $bStr")
         }
         appendLine("-----------------------------------------")
         appendLine("CHRONOLOGICAL SCORE HISTORY LOG:")
@@ -795,8 +829,8 @@ private fun generateScoresheetExport(state: MatchState): String {
             val setStr = "S${event.setNumber}"
             val score = event.scoreDisplay
             val team = when (event.teamId) {
-                state.teamA.id -> state.teamA.shortCode
-                state.teamB.id -> state.teamB.shortCode
+                state.teamA.id -> state.teamA.displayCode
+                state.teamB.id -> state.teamB.displayCode
                 else -> "---"
             }
             appendLine(String.format("%3d. [%s] %s | %-6s | %-4s | %s", i + 1, time, setStr, score, team, event.note.ifEmpty { event.eventType.label }))

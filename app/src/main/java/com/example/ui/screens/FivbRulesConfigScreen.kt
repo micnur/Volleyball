@@ -38,6 +38,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextButton
+import com.example.model.RefereeCorps
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -93,6 +99,25 @@ fun FivbRulesConfigScreen(
     var decidingSwitchPoints by remember { mutableIntStateOf(initialRules.decidingSetSwitchPoints) }
     var whistleAudio by remember { mutableStateOf(initialRules.whistleAudioEnabled) }
     var hapticFeedback by remember { mutableStateOf(initialRules.hapticFeedbackEnabled) }
+
+    val initialOfficials = matchState.officials
+    var firstReferee by remember { mutableStateOf(initialOfficials.firstReferee) }
+    var secondReferee by remember { mutableStateOf(initialOfficials.secondReferee) }
+    var scorer1 by remember { mutableStateOf(initialOfficials.scorer1) }
+    var scorer2 by remember { mutableStateOf(initialOfficials.scorer2) }
+    var scorer3 by remember { mutableStateOf(initialOfficials.scorer3) }
+    var lineReferee1 by remember { mutableStateOf(initialOfficials.lineReferee1) }
+    var lineReferee2 by remember { mutableStateOf(initialOfficials.lineReferee2) }
+
+    fun buildCurrentOfficials(): RefereeCorps = RefereeCorps(
+        firstReferee = firstReferee.trim(),
+        secondReferee = secondReferee.trim(),
+        scorer1 = scorer1.trim(),
+        scorer2 = scorer2.trim(),
+        scorer3 = scorer3.trim(),
+        lineReferee1 = lineReferee1.trim(),
+        lineReferee2 = lineReferee2.trim()
+    )
 
     fun buildCurrentConfig(): FivbRulesConfig {
         return FivbRulesConfig(
@@ -155,6 +180,7 @@ fun FivbRulesConfigScreen(
                 Button(
                     onClick = {
                         viewModel.updateRules(buildCurrentConfig())
+                        viewModel.updateOfficials(buildCurrentOfficials())
                         viewModel.navigateTo(RefereeScreen.MATCH)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = VolleyballGold, contentColor = CourtDark),
@@ -499,7 +525,218 @@ fun FivbRulesConfigScreen(
                 }
             }
 
+            // Match Officials & Referee Corps (1st referee, 2nd referee, 3 scorers, 2 line referees)
+            Card(
+                colors = CardDefaults.cardColors(containerColor = CourtSurface),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.testTag("match_officials_card")
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "MATCH OFFICIALS & REFEREES",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF64748B)
+                            )
+                            Text(
+                                text = "FIVB Chapter 8: Referees, Scorers & Line Judges",
+                                fontSize = 10.sp,
+                                color = VolleyballGold
+                            )
+                        }
+                        if (firstReferee.isNotBlank() || secondReferee.isNotBlank() || scorer1.isNotBlank() ||
+                            scorer2.isNotBlank() || scorer3.isNotBlank() || lineReferee1.isNotBlank() || lineReferee2.isNotBlank()
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    firstReferee = ""
+                                    secondReferee = ""
+                                    scorer1 = ""
+                                    scorer2 = ""
+                                    scorer3 = ""
+                                    lineReferee1 = ""
+                                    lineReferee2 = ""
+                                    viewModel.updateOfficials(RefereeCorps())
+                                },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                                modifier = Modifier.testTag("clear_officials_btn")
+                            ) {
+                                Text("Clear All", fontSize = 11.sp, color = Color(0xFFEF4444), fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // 1st & 2nd Referees
+                    Text(
+                        text = "REFEREES",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFCBD5E1)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OfficialInputField(
+                        value = firstReferee,
+                        onValueChange = {
+                            firstReferee = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(firstReferee = it.trim()))
+                        },
+                        label = "1st Referee",
+                        placeholder = "Name of 1st Referee",
+                        testTag = "input_first_referee"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OfficialInputField(
+                        value = secondReferee,
+                        onValueChange = {
+                            secondReferee = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(secondReferee = it.trim()))
+                        },
+                        label = "2nd Referee",
+                        placeholder = "Name of 2nd Referee",
+                        testTag = "input_second_referee"
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Scorers Section (3 scorers)
+                    Text(
+                        text = "SCORERS (3 OFFICIALS)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFCBD5E1)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OfficialInputField(
+                        value = scorer1,
+                        onValueChange = {
+                            scorer1 = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(scorer1 = it.trim()))
+                        },
+                        label = "Scorer 1 (Official Scorer)",
+                        placeholder = "Name of 1st Scorer",
+                        testTag = "input_scorer_1"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OfficialInputField(
+                        value = scorer2,
+                        onValueChange = {
+                            scorer2 = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(scorer2 = it.trim()))
+                        },
+                        label = "Scorer 2 (Assistant Scorer)",
+                        placeholder = "Name of 2nd Scorer",
+                        testTag = "input_scorer_2"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OfficialInputField(
+                        value = scorer3,
+                        onValueChange = {
+                            scorer3 = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(scorer3 = it.trim()))
+                        },
+                        label = "Scorer 3",
+                        placeholder = "Name of 3rd Scorer",
+                        testTag = "input_scorer_3"
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Line Referees Section (2 line judges)
+                    Text(
+                        text = "LINE REFEREES (2 JUDGES)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFCBD5E1)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OfficialInputField(
+                        value = lineReferee1,
+                        onValueChange = {
+                            lineReferee1 = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(lineReferee1 = it.trim()))
+                        },
+                        label = "Line Referee 1",
+                        placeholder = "Name of Line Referee 1",
+                        testTag = "input_line_referee_1"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OfficialInputField(
+                        value = lineReferee2,
+                        onValueChange = {
+                            lineReferee2 = it
+                            viewModel.updateOfficials(buildCurrentOfficials().copy(lineReferee2 = it.trim()))
+                        },
+                        label = "Line Referee 2",
+                        placeholder = "Name of Line Referee 2",
+                        testTag = "input_line_referee_2"
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
+}
+
+@Composable
+private fun OfficialInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    testTag: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, fontSize = 12.sp) },
+        placeholder = { Text(placeholder, fontSize = 12.sp, color = Color(0xFF64748B)) },
+        singleLine = true,
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = { onValueChange("") },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear $label",
+                        tint = Color(0xFF94A3B8),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = VolleyballGold,
+            unfocusedBorderColor = CourtLines,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedLabelColor = VolleyballGold,
+            unfocusedLabelColor = Color(0xFF94A3B8)
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag(testTag)
+    )
 }

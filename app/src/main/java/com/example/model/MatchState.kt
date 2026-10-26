@@ -73,6 +73,8 @@ data class MatchState(
     val matchStartTime: Long = System.currentTimeMillis(),
     val currentSetStartTime: Long = System.currentTimeMillis(),
     val setLineupHistory: Map<Int, SetStartingLineupRecord> = emptyMap(),
+    val officials: RefereeCorps = RefereeCorps(),
+    val matchClock: MatchClockState = MatchClockState(),
     val events: List<MatchEvent> = emptyList()
 ) {
     val servingTeam: Team

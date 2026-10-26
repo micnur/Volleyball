@@ -17,12 +17,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SportsVolleyball
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Timer
+import com.example.model.MatchClockState
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -55,7 +59,9 @@ import com.example.ui.theme.VolleyballGold
 @Composable
 fun ScoreBoardHeader(
     matchState: MatchState,
+    clockState: MatchClockState? = null,
     onSwitchSidesClick: () -> Unit,
+    onTimerToggleClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val teamLeft = matchState.teamOnSide(CourtSide.LEFT)
@@ -100,7 +106,7 @@ fun ScoreBoardHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Set Badge
+                // Set Badge & Live Clock Chip
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
@@ -143,6 +149,38 @@ fun ScoreBoardHeader(
                                 fontWeight = FontWeight.Bold,
                                 color = CourtDark
                             )
+                        }
+                    }
+
+                    // Compact Live Clock Indicator
+                    if (clockState != null) {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Surface(
+                            onClick = { onTimerToggleClick?.invoke() },
+                            shape = RoundedCornerShape(5.dp),
+                            color = if (clockState.isRunning) Color(0xFF10B981).copy(alpha = 0.2f) else CourtSurfaceHigh,
+                            border = BorderStroke(1.dp, if (clockState.isRunning) Color(0xFF10B981) else CourtLines),
+                            modifier = Modifier.testTag("header_clock_chip")
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = if (clockState.isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                    contentDescription = if (clockState.isRunning) "Pause Clock" else "Start Clock",
+                                    tint = if (clockState.isRunning) Color(0xFF10B981) else VolleyballGold,
+                                    modifier = Modifier.size(11.dp)
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = clockState.formattedTime,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = if (clockState.isRunning) Color.White else Color(0xFFCBD5E1)
+                                )
+                            }
                         }
                     }
                 }
@@ -207,7 +245,7 @@ fun ScoreBoardHeader(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = teamLeft.name,
+                            text = teamLeft.displayName,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -329,7 +367,7 @@ fun ScoreBoardHeader(
                             Spacer(modifier = Modifier.width(4.dp))
                         }
                         Text(
-                            text = teamRight.name,
+                            text = teamRight.displayName,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,

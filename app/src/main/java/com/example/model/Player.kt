@@ -11,5 +11,10 @@ data class Player(
     val isLibero: Boolean = false
 ) {
     val displayLabel: String
-        get() = "#$number $name" + (if (isCaptain) " (C)" else "") + (if (isLibero) " [L]" else "")
+        get() = buildString {
+            append("#$number")
+            if (name.isNotBlank()) append(" $name")
+            if (isCaptain) append(" (C)")
+            if (isLibero) append(" [L]")
+        }
 }

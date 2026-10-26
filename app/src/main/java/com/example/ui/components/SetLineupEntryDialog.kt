@@ -253,7 +253,7 @@ fun SetLineupEntryDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = matchState.teamA.name,
+                                    text = matchState.teamA.displayName,
                                     fontSize = 12.sp,
                                     fontWeight = if (activeTeamTab == 0) FontWeight.Bold else FontWeight.Normal,
                                     color = if (activeTeamTab == 0) VolleyballGold else Color.White
@@ -287,7 +287,7 @@ fun SetLineupEntryDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = matchState.teamB.name,
+                                    text = matchState.teamB.displayName,
                                     fontSize = 12.sp,
                                     fontWeight = if (activeTeamTab == 1) FontWeight.Bold else FontWeight.Normal,
                                     color = if (activeTeamTab == 1) VolleyballGold else Color.White
@@ -389,7 +389,7 @@ fun SetLineupEntryDialog(
                 // Front Row: Pos IV (Left Front), Pos III (Middle Front), Pos II (Right Front)
                 // Back Row:  Pos V (Left Back),  Pos VI (Middle Back), Pos I (Right Back - Server!)
                 Text(
-                    text = "${activeTeam.name.uppercase()} COURT POSITIONS (FIVB ROTATIONAL ORDER)",
+                    text = "${activeTeam.displayName.uppercase()} COURT POSITIONS (FIVB ROTATIONAL ORDER)",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF64748B)
@@ -597,7 +597,7 @@ fun SetLineupEntryDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             val currentLibero = if (activeTeamTab == 0) teamALibero else teamBLibero
                             Text(
-                                text = currentLibero?.let { "#${it.number} ${it.name}" } ?: "No Libero Designated",
+                                text = currentLibero?.let { if (it.name.isNotBlank()) "#${it.number} ${it.name}" else "#${it.number} (Libero)" } ?: "No Libero Designated",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White
@@ -716,10 +716,10 @@ fun SetLineupEntryDialog(
                                     )
                                 }
                                 Text(
-                                    text = player.name,
+                                    text = player.name.ifBlank { "Player #${player.number}" },
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color(0xFFCBD5E1),
+                                    color = if (player.name.isNotBlank()) Color(0xFFCBD5E1) else Color(0xFF64748B),
                                     maxLines = 1
                                 )
                                 Text(
@@ -763,7 +763,7 @@ fun SetLineupEntryDialog(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = matchState.teamA.shortCode,
+                                    text = matchState.teamA.displayCode,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp,
                                     color = if (firstServingTeamId == matchState.teamA.id) CourtDark else Color.White
@@ -778,7 +778,7 @@ fun SetLineupEntryDialog(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = matchState.teamB.shortCode,
+                                    text = matchState.teamB.displayCode,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp,
                                     color = if (firstServingTeamId == matchState.teamB.id) CourtDark else Color.White
@@ -793,8 +793,8 @@ fun SetLineupEntryDialog(
                 // Validation Feedback
                 if (!canConfirm) {
                     val missingMsg = buildString {
-                        if (!isTeamAComplete) append("${matchState.teamA.shortCode} needs ${6 - teamALineup.size} more players. ")
-                        if (!isTeamBComplete) append("${matchState.teamB.shortCode} needs ${6 - teamBLineup.size} more players.")
+                        if (!isTeamAComplete) append("${matchState.teamA.displayCode} needs ${6 - teamALineup.size} more players. ")
+                        if (!isTeamBComplete) append("${matchState.teamB.displayCode} needs ${6 - teamBLineup.size} more players.")
                     }
                     Text(
                         text = "Complete all 6 positions for both teams: $missingMsg",
@@ -847,7 +847,7 @@ fun SetLineupEntryDialog(
         val targetTeam = if (activeTeamTab == 0) matchState.teamA else matchState.teamB
         EditPlayerDialog(
             player = playerBeingEdited,
-            teamName = targetTeam.name,
+            teamName = targetTeam.displayName,
             teamColorHex = targetTeam.colorHex,
             onDismiss = {
                 showEditPlayerDialog = false
@@ -975,14 +975,16 @@ private fun PositionSlotCard(
                         fontWeight = FontWeight.Black,
                         color = if (isServer) VolleyballGold else Color.White
                     )
-                    Text(
-                        text = player.name,
-                        fontSize = 10.sp,
-                        color = Color(0xFFCBD5E1),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
-                    )
+                    if (player.name.isNotBlank()) {
+                        Text(
+                            text = player.name,
+                            fontSize = 10.sp,
+                            color = Color(0xFFCBD5E1),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             } else {
                 Box(

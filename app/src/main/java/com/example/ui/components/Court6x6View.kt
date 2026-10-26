@@ -110,7 +110,7 @@ fun Court6x6View(
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${teamLeft.shortCode} (Rot #${rotationLeft.rotationNumber})",
+                        text = "${teamLeft.displayCode} (Rot #${rotationLeft.rotationNumber})",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(teamLeft.colorHex)
@@ -128,7 +128,7 @@ fun Court6x6View(
                 // Right Team Header & Rotation
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "${teamRight.shortCode} (Rot #${rotationRight.rotationNumber})",
+                        text = "${teamRight.displayCode} (Rot #${rotationRight.rotationNumber})",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(teamRight.colorHex)
@@ -460,7 +460,10 @@ private fun PlayerCard(
 
             // Player Name & Captain flag
             Text(
-                text = player?.let { it.name + (if (it.isCaptain) " (C)" else "") } ?: "Empty",
+                text = player?.let {
+                    if (it.name.isNotBlank()) it.name + (if (it.isCaptain) " (C)" else "")
+                    else if (it.isCaptain) "(C)" else ""
+                } ?: "Empty",
                 fontSize = 8.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFCBD5E1),

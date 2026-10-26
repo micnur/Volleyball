@@ -106,7 +106,7 @@ fun EditPlayerDialog(
                                 color = Color.White
                             )
                             Text(
-                                text = teamName,
+                                text = teamName.ifBlank { "Team" },
                                 fontSize = 11.sp,
                                 color = VolleyballGold
                             )
@@ -150,7 +150,7 @@ fun EditPlayerDialog(
                         nameText = it
                         errorMessage = null
                     },
-                    label = { Text("Player Name") },
+                    label = { Text("Player Name (Optional)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("edit_player_name_input"),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -264,10 +264,6 @@ fun EditPlayerDialog(
                             val num = numberText.toIntOrNull()
                             if (num == null || num <= 0 || num > 99) {
                                 errorMessage = "Please enter a valid shirt number (1-99)."
-                                return@Button
-                            }
-                            if (nameText.isBlank()) {
-                                errorMessage = "Please enter a player name."
                                 return@Button
                             }
 

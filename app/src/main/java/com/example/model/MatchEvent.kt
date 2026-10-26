@@ -36,7 +36,12 @@ enum class EventType(val category: String, val label: String) {
     SET_START("Flow", "Set Started"),
     LINEUP_CONFIRMED("Flow", "Starting Line-up Registered"),
     SET_END("Flow", "Set Finished"),
-    MATCH_END("Flow", "Match Finished")
+    MATCH_END("Flow", "Match Finished"),
+
+    // Real-Time Match Clock
+    TIMER_START("Timer", "Clock Started"),
+    TIMER_PAUSE("Timer", "Clock Paused"),
+    TIMER_RESET("Timer", "Clock Reset")
 }
 
 data class MatchEvent(

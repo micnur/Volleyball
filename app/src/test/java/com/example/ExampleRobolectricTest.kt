@@ -38,4 +38,48 @@ class ExampleRobolectricTest {
     assertEquals(6, set1Lineup.teamBLineup.size)
     org.junit.Assert.assertNotNull(set1Lineup.teamALineup[1])
   }
+
+  @Test
+  fun `verify match officials configuration`() {
+    val officials = com.example.model.RefereeCorps(
+      firstReferee = "Alice Johnson",
+      secondReferee = "Bob Williams",
+      scorer1 = "Charlie Brown",
+      scorer2 = "Diana Prince",
+      scorer3 = "Evan Wright",
+      lineReferee1 = "Fiona Gallagher",
+      lineReferee2 = "George Clark"
+    )
+    org.junit.Assert.assertTrue(officials.hasAnyOfficial)
+    assertEquals("Alice Johnson", officials.firstReferee)
+    assertEquals("Bob Williams", officials.secondReferee)
+    assertEquals("Charlie Brown", officials.scorer1)
+    assertEquals("Diana Prince", officials.scorer2)
+    assertEquals("Evan Wright", officials.scorer3)
+    assertEquals("Fiona Gallagher", officials.lineReferee1)
+    assertEquals("George Clark", officials.lineReferee2)
+  }
+
+  @Test
+  fun `verify match clock initial, running, and reset states`() {
+    val initialClock = com.example.model.MatchClockState()
+    org.junit.Assert.assertFalse(initialClock.isRunning)
+    assertEquals(0L, initialClock.currentSeconds)
+    assertEquals("00:00", initialClock.formattedTime)
+
+    // Formatted duration test
+    val midSetClock = com.example.model.MatchClockState(
+      isRunning = false,
+      accumulatedSeconds = 125L // 2 minutes 5 seconds
+    )
+    assertEquals(125L, midSetClock.currentSeconds)
+    assertEquals("02:05", midSetClock.formattedTime)
+
+    // Over 1 hour formatting test
+    val longSetClock = com.example.model.MatchClockState(
+      isRunning = false,
+      accumulatedSeconds = 3665L // 1 hour, 1 minute, 5 seconds
+    )
+    assertEquals("01:01:05", longSetClock.formattedTime)
+  }
 }

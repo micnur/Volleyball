@@ -287,7 +287,7 @@ fun MatchSetupScreen(
                                             }
                                         }
                                         Text(
-                                            text = player.name,
+                                            text = player.name.ifBlank { "Player #${player.number}" },
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Medium,
                                             color = Color(0xFFCBD5E1),
@@ -428,7 +428,7 @@ fun MatchSetupScreen(
                                             }
                                         }
                                         Text(
-                                            text = player.name,
+                                            text = player.name.ifBlank { "Player #${player.number}" },
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Medium,
                                             color = Color(0xFFCBD5E1),

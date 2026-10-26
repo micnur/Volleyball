@@ -62,6 +62,7 @@ import com.example.model.CourtSide
 import com.example.model.Player
 import com.example.model.Team
 import com.example.ui.components.Court6x6View
+import com.example.ui.components.MatchTimerBar
 import com.example.ui.components.PointReasonDialog
 import com.example.ui.components.SanctionDialog
 import com.example.ui.components.ScoreBoardHeader
@@ -90,6 +91,7 @@ fun RefereeMatchScreen(
     val activeTimeoutTeam by viewModel.activeTimeoutTeam.collectAsState()
     val pendingSideSwitchMessage by viewModel.pendingSideSwitchMessage.collectAsState()
     val technicalTimeoutAlert by viewModel.technicalTimeoutAlert.collectAsState()
+    val clockState by viewModel.matchClock.collectAsState()
 
     // Dialog states
     var showPointReasonDialogForTeam by remember { mutableStateOf<Team?>(null) }
@@ -210,8 +212,24 @@ fun RefereeMatchScreen(
             // Live Scoreboard
             ScoreBoardHeader(
                 matchState = matchState,
-                onSwitchSidesClick = { viewModel.switchCourtSides() }
+                clockState = clockState,
+                onSwitchSidesClick = { viewModel.switchCourtSides() },
+                onTimerToggleClick = { viewModel.toggleClock() }
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Real-time Match & Set Clock
+            MatchTimerBar(
+                clockState = clockState,
+                currentSetNumber = matchState.currentSet,
+                onStartClick = { viewModel.startClock() },
+                onPauseClick = { viewModel.pauseClock() },
+                onResetClick = { viewModel.resetClock() },
+                onAdjustTime = { delta -> viewModel.adjustClock(delta) }
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Starting Lineup Verification Pill (FIVB Rule 7.3)
             Row(

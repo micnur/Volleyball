@@ -12,17 +12,22 @@ import com.example.model.MatchEvent
 import com.example.model.MatchSnapshot
 import com.example.model.MatchState
 import com.example.model.Player
+import com.example.model.MatchClockState
+import com.example.model.RefereeCorps
 import com.example.model.RotationState
 import com.example.model.SetResult
 import com.example.model.SetStartingLineupRecord
 import com.example.model.Team
 import com.example.util.RefereeSoundFeedback
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 enum class RefereeScreen {
@@ -68,6 +73,27 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
     // Starting Lineup Entry Dialog state
     private val _showLineupDialog = MutableStateFlow(false)
     val showLineupDialog: StateFlow<Boolean> = _showLineupDialog.asStateFlow()
+
+    // Real-Time Match & Set Clock state
+    private val _matchClock = MutableStateFlow(_matchState.value.matchClock)
+    val matchClock: StateFlow<MatchClockState> = _matchClock.asStateFlow()
+    private var clockJob: Job? = null
+
+    init {
+        startClockTicker()
+    }
+
+    private fun startClockTicker() {
+        clockJob?.cancel()
+        clockJob = viewModelScope.launch {
+            while (isActive) {
+                delay(1000L)
+                if (_matchClock.value.isRunning) {
+                    _matchClock.update { it.copy(tickCounter = it.tickCounter + 1) }
+                }
+            }
+        }
+    }
 
     // Saved matches from Room
     val savedMatches: StateFlow<List<MatchEntity>> = repository.allMatches.stateIn(
@@ -116,7 +142,7 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
         }
 
         val eventDescription = buildString {
-            append(if (isTeamA) currentState.teamA.name else currentState.teamB.name)
+            append(if (isTeamA) currentState.teamA.displayName else currentState.teamB.displayName)
             append(" Point ($newScoreA - $newScoreB)")
             if (playerInvolved != null) {
                 append(" by ${playerInvolved.displayLabel}")
@@ -299,7 +325,7 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             scoreTeamB = 0,
             teamId = null,
             eventType = EventType.SET_START,
-            note = "Set $nextSetNumber started. Serving: ${if (initialServerNextSet == current.teamA.id) current.teamA.name else current.teamB.name}"
+            note = "Set $nextSetNumber started. Serving: ${if (initialServerNextSet == current.teamA.id) current.teamA.displayName else current.teamB.displayName}"
         )
 
         val nextState = current.copy(
@@ -325,7 +351,11 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             haptic = current.rules.hapticFeedbackEnabled
         )
 
-        _matchState.value = nextState
+        // Reset clock for new set
+        val resetClock = MatchClockState()
+        _matchClock.value = resetClock
+
+        _matchState.value = nextState.copy(matchClock = resetClock)
         _showLineupDialog.value = true
         persistCurrentMatch()
     }
@@ -385,7 +415,7 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             scoreTeamB = current.scoreTeamB,
             teamId = null,
             eventType = EventType.LINEUP_CONFIRMED,
-            note = "Official starting line-up registered for Set $setNumber for both teams. Server: ${if (serverId == current.teamA.id) current.teamA.name else current.teamB.name}"
+            note = "Official starting line-up registered for Set $setNumber for both teams. Server: ${if (serverId == current.teamA.id) current.teamA.displayName else current.teamB.displayName}"
         )
 
         soundFeedback.playWhistle(
@@ -514,6 +544,8 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
         )
 
         val team = if (isTeamA) current.teamA else current.teamB
+        val inText = if (playerIn.name.isNotBlank()) "#${playerIn.number} ${playerIn.name}" else "#${playerIn.number}"
+        val outText = if (playerOut.name.isNotBlank()) "#${playerOut.number} ${playerOut.name}" else "#${playerOut.number}"
         val subEvent = MatchEvent(
             setNumber = current.currentSet,
             scoreTeamA = current.scoreTeamA,
@@ -522,7 +554,7 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             eventType = EventType.SUBSTITUTION,
             subInPlayer = playerIn,
             subOutPlayer = playerOut,
-            note = "${team.name} Sub: In #${playerIn.number} ${playerIn.name} for #${playerOut.number} ${playerOut.name}"
+            note = "${team.displayName} Sub: In $inText for $outText"
         )
 
         soundFeedback.playDoubleWhistle(
@@ -562,9 +594,9 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             teamId = teamId,
             eventType = EventType.LIBERO_REPLACEMENT,
             note = if (isEntering) {
-                "${team.name} Libero [L] #${libero.number} entered at P$pos"
+                "${team.displayName} Libero [L] #${libero.number} entered at P$pos"
             } else {
-                "${team.name} Libero [L] #${libero.number} replaced at P$pos"
+                "${team.displayName} Libero [L] #${libero.number} replaced at P$pos"
             }
         )
 
@@ -687,6 +719,101 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /**
+     * Update FIVB Match Officials & Referee Corps
+     */
+    fun updateOfficials(officials: RefereeCorps) {
+        _matchState.update { it.copy(officials = officials) }
+        persistCurrentMatch()
+    }
+
+    /**
+     * Start the real-time match/set clock
+     */
+    fun startClock() {
+        val current = _matchClock.value
+        if (current.isRunning) return
+        val newClock = current.copy(
+            isRunning = true,
+            lastStartTimestamp = System.currentTimeMillis()
+        )
+        _matchClock.value = newClock
+        _matchState.update { it.copy(matchClock = newClock) }
+        soundFeedback.playWhistle(
+            enabled = _matchState.value.rules.whistleAudioEnabled,
+            haptic = _matchState.value.rules.hapticFeedbackEnabled
+        )
+        persistCurrentMatch()
+    }
+
+    /**
+     * Pause the real-time match/set clock
+     */
+    fun pauseClock() {
+        val current = _matchClock.value
+        if (!current.isRunning) return
+        val now = System.currentTimeMillis()
+        val additionalSeconds = if (current.lastStartTimestamp > 0L) {
+            ((now - current.lastStartTimestamp) / 1000).coerceAtLeast(0L)
+        } else {
+            0L
+        }
+        val newClock = current.copy(
+            isRunning = false,
+            accumulatedSeconds = current.accumulatedSeconds + additionalSeconds,
+            lastStartTimestamp = 0L
+        )
+        _matchClock.value = newClock
+        _matchState.update { it.copy(matchClock = newClock) }
+        soundFeedback.playWhistle(
+            enabled = false,
+            haptic = _matchState.value.rules.hapticFeedbackEnabled
+        )
+        persistCurrentMatch()
+    }
+
+    /**
+     * Toggle clock between running and paused
+     */
+    fun toggleClock() {
+        if (_matchClock.value.isRunning) {
+            pauseClock()
+        } else {
+            startClock()
+        }
+    }
+
+    /**
+     * Reset the clock back to 00:00
+     */
+    fun resetClock() {
+        val newClock = MatchClockState(
+            isRunning = false,
+            accumulatedSeconds = 0L,
+            lastStartTimestamp = 0L,
+            tickCounter = 0L
+        )
+        _matchClock.value = newClock
+        _matchState.update { it.copy(matchClock = newClock) }
+        persistCurrentMatch()
+    }
+
+    /**
+     * Adjust clock time by delta in seconds (+30s, +60s, -30s, -60s)
+     */
+    fun adjustClock(deltaSeconds: Long) {
+        val current = _matchClock.value
+        val currentSec = current.currentSeconds
+        val adjusted = (currentSec + deltaSeconds).coerceAtLeast(0L)
+        val newClock = current.copy(
+            accumulatedSeconds = adjusted,
+            lastStartTimestamp = if (current.isRunning) System.currentTimeMillis() else 0L
+        )
+        _matchClock.value = newClock
+        _matchState.update { it.copy(matchClock = newClock) }
+        persistCurrentMatch()
+    }
+
+    /**
      * Start a brand new match with custom teams and settings
      */
     fun startNewMatch(
@@ -702,12 +829,15 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
         _pendingSideSwitchMessage.value = null
         _technicalTimeoutAlert.value = null
 
+        val resetClock = MatchClockState()
+        _matchClock.value = resetClock
+
         val newState = MatchRepository.createInitialMatchState(
             rules = rules,
             teamA = teamA,
             teamB = teamB,
             serverFirstId = initialServerTeamId
-        )
+        ).copy(matchClock = resetClock)
 
         _matchState.value = newState
         _currentScreen.value = RefereeScreen.MATCH
