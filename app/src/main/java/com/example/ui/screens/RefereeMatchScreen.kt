@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SportsVolleyball
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Timer
@@ -62,6 +63,7 @@ import com.example.model.CourtSide
 import com.example.model.Player
 import com.example.model.Team
 import com.example.ui.components.Court6x6View
+import com.example.ui.components.ExportReportDialog
 import com.example.ui.components.MatchTimerBar
 import com.example.ui.components.PointReasonDialog
 import com.example.ui.components.SanctionDialog
@@ -98,6 +100,7 @@ fun RefereeMatchScreen(
     var showSubstitutionSheetForTeam by remember { mutableStateOf<Team?>(null) }
     var preSelectedPlayerForSub by remember { mutableStateOf<Player?>(null) }
     var showSanctionDialog by remember { mutableStateOf(false) }
+    var showExportReportDialog by remember { mutableStateOf(false) }
 
     val teamLeft = matchState.teamOnSide(CourtSide.LEFT)
     val teamRight = matchState.teamOnSide(CourtSide.RIGHT)
@@ -304,7 +307,7 @@ fun RefereeMatchScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             val winner = if (matchState.winnerTeamId == matchState.teamA.id) matchState.teamA else matchState.teamB
                             Text(
-                                text = "MATCH WON BY ${winner.name.uppercase()}!",
+                                text = "MATCH WON BY ${winner.displayName.uppercase()}!",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Black,
                                 color = VolleyballGold
@@ -316,7 +319,16 @@ fun RefereeMatchScreen(
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { showExportReportDialog = true },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981), contentColor = Color.White),
+                                modifier = Modifier.testTag("match_finished_export_btn")
+                            ) {
+                                Icon(Icons.Default.Share, null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Export Report", fontWeight = FontWeight.Bold)
+                            }
                             Button(
                                 onClick = { viewModel.navigateTo(RefereeScreen.MATCH_LOG) },
                                 colors = ButtonDefaults.buttonColors(containerColor = VolleyballGold, contentColor = CourtDark)
@@ -552,6 +564,13 @@ fun RefereeMatchScreen(
                     firstServingTeamId = serverId
                 )
             }
+        )
+    }
+
+    if (showExportReportDialog) {
+        ExportReportDialog(
+            matchState = matchState,
+            onDismiss = { showExportReportDialog = false }
         )
     }
 }

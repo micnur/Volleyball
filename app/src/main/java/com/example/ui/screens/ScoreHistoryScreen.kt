@@ -37,8 +37,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SportsVolleyball
+import com.example.ui.components.ExportReportDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -141,6 +143,8 @@ fun ScoreHistoryScreen(
     val totalAces = allPointEvents.count { it.eventType == EventType.POINT_ACE }
     val totalBlocks = allPointEvents.count { it.eventType == EventType.POINT_BLOCK }
 
+    var showExportReportDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -188,8 +192,24 @@ fun ScoreHistoryScreen(
                         }
                     }
 
-                    // Export / Share Actions
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Export PDF / CSV / Copy Actions
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Export PDF / CSV Report Button
+                        IconButton(
+                            onClick = { showExportReportDialog = true },
+                            modifier = Modifier.testTag("export_report_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Export PDF or CSV Match Report",
+                                tint = VolleyballGold
+                            )
+                        }
+
+                        // Copy Text to Clipboard
                         IconButton(
                             onClick = {
                                 val exportText = generateScoresheetExport(matchState)
@@ -204,26 +224,6 @@ fun ScoreHistoryScreen(
                                 imageVector = Icons.Default.ContentCopy,
                                 contentDescription = "Copy Score History",
                                 tint = RefereeWhistle
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                val exportText = generateScoresheetExport(matchState)
-                                val sendIntent = Intent().apply {
-                                    action = Intent.ACTION_SEND
-                                    putExtra(Intent.EXTRA_TEXT, exportText)
-                                    type = "text/plain"
-                                }
-                                val shareIntent = Intent.createChooser(sendIntent, "Share Match Score History")
-                                context.startActivity(shareIntent)
-                            },
-                            modifier = Modifier.testTag("share_scoresheet_btn")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share",
-                                tint = VolleyballGold
                             )
                         }
                     }
@@ -570,6 +570,13 @@ fun ScoreHistoryScreen(
                 }
             }
         }
+    }
+
+    if (showExportReportDialog) {
+        ExportReportDialog(
+            matchState = matchState,
+            onDismiss = { showExportReportDialog = false }
+        )
     }
 }
 
