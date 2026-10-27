@@ -155,7 +155,7 @@ fun Court6x6View(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(175.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFF0F172A))
                     .border(1.dp, CourtLines, RoundedCornerShape(10.dp))
@@ -358,20 +358,20 @@ private fun PlayerCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .height(38.dp)
+            .clip(RoundedCornerShape(5.dp))
             .background(backgroundColor)
             .border(
                 width = if (isServer) 1.5.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(5.dp)
             )
             .clickable(enabled = player != null) {
                 if (player != null) {
                     onPlayerClick(pos, player)
                 }
             }
-            .padding(2.dp)
+            .padding(1.5.dp)
             .testTag("player_pos_${team.id}_$pos")
     ) {
         Column(
@@ -387,11 +387,11 @@ private fun PlayerCard(
                 Box(
                     modifier = Modifier
                         .background(Color(0xFF334155), RoundedCornerShape(2.dp))
-                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                        .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                 ) {
                     Text(
                         text = "P$pos",
-                        fontSize = 7.5.sp,
+                        fontSize = 7.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE2E8F0)
                     )
@@ -402,18 +402,18 @@ private fun PlayerCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(VolleyballGold, RoundedCornerShape(2.dp))
-                            .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.SportsVolleyball,
                             contentDescription = "Server",
                             tint = CourtDark,
-                            modifier = Modifier.size(8.dp)
+                            modifier = Modifier.size(7.5.dp)
                         )
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(
                             text = "SERVE",
-                            fontSize = 7.sp,
+                            fontSize = 6.5.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
@@ -422,11 +422,11 @@ private fun PlayerCard(
                     Box(
                         modifier = Modifier
                             .background(LiberoBadge, RoundedCornerShape(2.dp))
-                            .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                     ) {
                         Text(
                             text = "L",
-                            fontSize = 7.5.sp,
+                            fontSize = 7.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -442,7 +442,7 @@ private fun PlayerCard(
             ) {
                 Text(
                     text = player?.let { "#${it.number}" } ?: "--",
-                    fontSize = 13.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Black,
                     color = if (isServer) VolleyballGold else Color.White
                 )
@@ -451,7 +451,7 @@ private fun PlayerCard(
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text = "(${player.role.code})",
-                        fontSize = 9.sp,
+                        fontSize = 8.sp,
                         color = Color(0xFF94A3B8),
                         fontWeight = FontWeight.Medium
                     )

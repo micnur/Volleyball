@@ -611,23 +611,23 @@ private fun RefereeControlsSection(
                     onClick = { onScorePoint(teamLeft, false) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp)
+                        .height(42.dp)
                         .testTag("score_left_point_btn"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(teamLeft.colorHex),
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "+1 ${teamLeft.shortCode}",
-                            fontSize = 17.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
                             text = "POINT",
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFE2E8F0)
                         )
@@ -636,7 +636,7 @@ private fun RefereeControlsSection(
 
                 // Center Fast Tools: Undo & Sanction
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Undo Button
@@ -644,7 +644,7 @@ private fun RefereeControlsSection(
                         onClick = onUndo,
                         enabled = canUndo,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                             .background(if (canUndo) CourtSurfaceHigh else Color(0xFF1E293B), CircleShape)
                             .border(1.dp, if (canUndo) RefereeWhistle else Color(0xFF334155), CircleShape)
                             .testTag("undo_button")
@@ -653,7 +653,7 @@ private fun RefereeControlsSection(
                             imageVector = Icons.AutoMirrored.Filled.Undo,
                             contentDescription = "Undo",
                             tint = if (canUndo) RefereeWhistle else Color(0xFF64748B),
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
 
@@ -661,7 +661,7 @@ private fun RefereeControlsSection(
                     IconButton(
                         onClick = onSanction,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                             .background(CourtSurfaceHigh, CircleShape)
                             .border(1.dp, SanctionYellow, CircleShape)
                             .testTag("sanction_button")
@@ -670,7 +670,7 @@ private fun RefereeControlsSection(
                             imageVector = Icons.Default.Gavel,
                             contentDescription = "Sanction Cards",
                             tint = SanctionYellow,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }
@@ -680,23 +680,23 @@ private fun RefereeControlsSection(
                     onClick = { onScorePoint(teamRight, false) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp)
+                        .height(42.dp)
                         .testTag("score_right_point_btn"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(teamRight.colorHex),
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "+1 ${teamRight.shortCode}",
-                            fontSize = 17.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
                             text = "POINT",
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFE2E8F0)
                         )

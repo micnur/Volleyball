@@ -20,11 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SportsVolleyball
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Tv
+import com.example.util.BluetoothConnectionState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -202,6 +207,111 @@ fun FivbRulesConfigScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            // Big Scoreboard & Bluetooth Sync Card
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF131D31)),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.5.dp, VolleyballGold),
+                modifier = Modifier.testTag("settings_big_scoreboard_card")
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Tv, contentDescription = null, tint = VolleyballGold, modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "BIG SCOREBOARD DISPLAY",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Full-Screen Score & Timeouts (FIVB Rule 15.1)",
+                                    fontSize = 10.sp,
+                                    color = Color(0xFF94A3B8)
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(VolleyballGold)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text("NEW", fontSize = 9.sp, fontWeight = FontWeight.Black, color = CourtDark)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Turn this device into a giant digital scoreboard displaying real-time points, sets won, timeouts taken & remaining, and the match clock. Use standalone or sync between two Android devices via Bluetooth (Device 1: VOLLEYREF Controller, Device 2: Big Scoreboard Display).",
+                        fontSize = 11.sp,
+                        color = Color(0xFFCBD5E1),
+                        lineHeight = 15.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Button(
+                        onClick = { viewModel.navigateTo(RefereeScreen.BIG_SCOREBOARD) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .testTag("settings_open_big_scoreboard_btn"),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = VolleyballGold,
+                            contentColor = CourtDark
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.Tv, null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Open Big Scoreboard", fontSize = 13.sp, fontWeight = FontWeight.Black)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                viewModel.startBluetoothServer()
+                                viewModel.navigateTo(RefereeScreen.BIG_SCOREBOARD)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                            border = BorderStroke(1.dp, CourtLines)
+                        ) {
+                            Icon(Icons.Default.Bluetooth, null, tint = Color(0xFF38BDF8), modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Host as Referee", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                viewModel.toggleBluetoothSimulation()
+                                viewModel.navigateTo(RefereeScreen.BIG_SCOREBOARD)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                            border = BorderStroke(1.dp, CourtLines)
+                        ) {
+                            Text("Demo Simulation", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
             // Rule Presets
             Card(
                 colors = CardDefaults.cardColors(containerColor = CourtSurface),

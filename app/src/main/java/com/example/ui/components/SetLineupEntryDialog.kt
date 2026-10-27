@@ -175,7 +175,7 @@ fun SetLineupEntryDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(10.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 // Header
@@ -187,8 +187,8 @@ fun SetLineupEntryDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .size(26.dp)
+                                .clip(RoundedCornerShape(6.dp))
                                 .background(VolleyballGold),
                             contentAlignment = Alignment.Center
                         ) {
@@ -196,31 +196,36 @@ fun SetLineupEntryDialog(
                                 imageVector = Icons.Default.FactCheck,
                                 contentDescription = null,
                                 tint = CourtDark,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
                                 text = "Set $targetSetNumber Starting Line-up",
-                                fontSize = 18.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
                                 text = "FIVB Rule 7.3 - Verification & Rotation Order",
-                                fontSize = 11.sp,
+                                fontSize = 10.sp,
                                 color = Color(0xFF94A3B8)
                             )
                         }
                     }
 
-                    IconButton(onClick = onDismiss, modifier = Modifier.testTag("close_lineup_dialog_btn")) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color(0xFF94A3B8))
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .testTag("close_lineup_dialog_btn")
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Team Tabs
                 TabRow(
@@ -822,19 +827,19 @@ fun SetLineupEntryDialog(
                     enabled = canConfirm,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(40.dp)
                         .testTag("confirm_set_lineup_btn"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = VolleyballGold,
                         contentColor = CourtDark
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    Icon(Icons.Default.Check, null, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Register Line-ups & Authorize Play",
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -903,16 +908,16 @@ private fun PositionSlotCard(
 
     Box(
         modifier = modifier
-            .height(84.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .height(56.dp)
+            .clip(RoundedCornerShape(6.dp))
             .background(if (isSelected) Color(0xFF1E293B) else Color(0xFF131D31))
             .border(
-                width = if (isSelected) 2.dp else 1.dp,
+                width = if (isSelected) 1.5.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(6.dp)
             )
             .clickable { onSelectSlot() }
-            .padding(4.dp)
+            .padding(3.dp)
             .testTag("position_slot_$posNumber")
     ) {
         Column(
@@ -927,12 +932,12 @@ private fun PositionSlotCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .background(if (isServer) VolleyballGold else Color(0xFF334155), RoundedCornerShape(3.dp))
-                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                        .background(if (isServer) VolleyballGold else Color(0xFF334155), RoundedCornerShape(2.dp))
+                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
                 ) {
                     Text(
                         text = label,
-                        fontSize = 8.sp,
+                        fontSize = 7.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isServer) CourtDark else Color.White
                     )
@@ -945,23 +950,21 @@ private fun PositionSlotCard(
                             contentDescription = "Edit Player",
                             tint = VolleyballGold,
                             modifier = Modifier
-                                .size(13.dp)
+                                .size(11.dp)
                                 .clickable { onEditPlayer?.invoke() }
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Clear",
                             tint = Color(0xFF94A3B8),
                             modifier = Modifier
-                                .size(12.dp)
+                                .size(10.dp)
                                 .clickable { onClearSlot() }
                         )
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(2.dp))
 
             // Player Number & Name
             if (player != null) {
@@ -971,14 +974,14 @@ private fun PositionSlotCard(
                 ) {
                     Text(
                         text = "#${player.number}",
-                        fontSize = 18.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isServer) VolleyballGold else Color.White
                     )
                     if (player.name.isNotBlank()) {
                         Text(
                             text = player.name,
-                            fontSize = 10.sp,
+                            fontSize = 8.5.sp,
                             color = Color(0xFFCBD5E1),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -990,12 +993,12 @@ private fun PositionSlotCard(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp),
+                        .height(26.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "+ Assign",
-                        fontSize = 11.sp,
+                        fontSize = 9.5.sp,
                         color = if (isSelected) VolleyballGold else Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
                     )

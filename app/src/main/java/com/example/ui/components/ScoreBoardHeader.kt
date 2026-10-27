@@ -97,7 +97,7 @@ fun ScoreBoardHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(6.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top Bar: Set indicator, Set breakdown chips, Switch Sides button
@@ -305,7 +305,7 @@ fun ScoreBoardHeader(
                     // Left Score
                     Text(
                         text = scoreLeft.toString().padStart(2, '0'),
-                        fontSize = 32.sp,
+                        fontSize = 27.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         color = if (isLeftServing) VolleyballGold else Color.White,
@@ -315,23 +315,23 @@ fun ScoreBoardHeader(
                     // Sets won & Colon
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 6.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .background(CourtDark, RoundedCornerShape(3.dp))
-                                .padding(horizontal = 6.dp, vertical = 1.dp)
+                                .padding(horizontal = 5.dp, vertical = 1.dp)
                         ) {
                             Text(
                                 text = "$setsWonLeft - $setsWonRight",
-                                fontSize = 10.sp,
+                                fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFE2E8F0)
                             )
                         }
                         Text(
                             text = ":",
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF64748B)
                         )
@@ -340,7 +340,7 @@ fun ScoreBoardHeader(
                     // Right Score
                     Text(
                         text = scoreRight.toString().padStart(2, '0'),
-                        fontSize = 32.sp,
+                        fontSize = 27.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         color = if (isRightServing) VolleyballGold else Color.White,

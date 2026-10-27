@@ -209,27 +209,27 @@ fun MatchTimerBar(
                 // Clock Digits Display
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(6.dp))
                         .background(CourtDark)
-                        .border(1.dp, if (clockState.isRunning) Color(0xFF10B981).copy(alpha = 0.5f) else CourtLines, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .border(1.dp, if (clockState.isRunning) Color(0xFF10B981).copy(alpha = 0.5f) else CourtLines, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                         .testTag("match_timer_display")
                 ) {
                     Text(
                         text = clockState.formattedTime,
-                        fontSize = 26.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
                         color = if (clockState.isRunning) Color.White else Color(0xFFCBD5E1)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 // Control Buttons: Start/Pause & Reset
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // Reset Button
                     OutlinedButton(
@@ -246,16 +246,16 @@ fun MatchTimerBar(
                         border = BorderStroke(1.dp, CourtLines),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .height(42.dp)
+                            .height(34.dp)
                             .testTag("timer_reset_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.RestartAlt,
                             contentDescription = "Reset Clock",
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("RESET", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("RESET", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
 
                     // Start / Pause Button
@@ -273,18 +273,18 @@ fun MatchTimerBar(
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .height(42.dp)
+                            .height(34.dp)
                             .testTag("timer_start_pause_btn")
                     ) {
                         Icon(
                             imageVector = if (clockState.isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (clockState.isRunning) "Pause Clock" else "Start Clock",
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(15.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = if (clockState.isRunning) "PAUSE" else if (clockState.currentSeconds > 0L) "RESUME" else "START",
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black
                         )
                     }

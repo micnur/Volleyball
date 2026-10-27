@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.example.ui.screens.BigScoreboardScreen
 import com.example.ui.screens.FivbRulesConfigScreen
 import com.example.ui.screens.MatchHistoryScreen
 import com.example.ui.screens.MatchSetupScreen
@@ -63,6 +64,9 @@ fun RefereeApp(viewModel: RefereeViewModel) {
             }
             RefereeScreen.MATCH_HISTORY -> {
                 MatchHistoryScreen(viewModel = viewModel)
+            }
+            RefereeScreen.BIG_SCOREBOARD -> {
+                BigScoreboardScreen(viewModel = viewModel)
             }
         }
     }

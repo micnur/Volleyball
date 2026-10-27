@@ -30,18 +30,25 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+import com.example.model.BluetoothScorePacket
+import com.example.util.BluetoothConnectionState
+import com.example.util.BluetoothDeviceInfo
+import com.example.util.BluetoothMatchSyncManager
+
 enum class RefereeScreen {
     MATCH,          // Main live referee console with scoreboard and 6x6 court
     MATCH_SETUP,    // Setup teams, rosters, initial server
     RULES_CONFIG,   // Full FIVB rules customizer
     MATCH_LOG,      // Live referee event timeline and export scoresheet
-    MATCH_HISTORY   // Saved matches list
+    MATCH_HISTORY,  // Saved matches list
+    BIG_SCOREBOARD  // Big scoreboard display (standalone or Bluetooth remote)
 }
 
 class RefereeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = MatchRepository(application)
     private val soundFeedback = RefereeSoundFeedback(application)
+    val bluetoothSyncManager = BluetoothMatchSyncManager(application)
 
     // Current screen navigation state
     private val _currentScreen = MutableStateFlow(RefereeScreen.MATCH)
@@ -900,6 +907,7 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun persistCurrentMatch() {
+        broadcastBluetoothScore()
         viewModelScope.launch {
             repository.saveMatch(_matchState.value)
         }
@@ -909,5 +917,93 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             repository.deleteMatch(matchId)
         }
+    }
+
+    /**
+     * Builds real-time score packet containing scores, sets, timeouts taken & remaining,
+     * substitutions, active timeout counter, serving team, and clock.
+     */
+    fun buildCurrentScorePacket(): BluetoothScorePacket {
+        val state = _matchState.value
+        val clock = _matchClock.value
+        val config = state.rules
+        val setSummary = state.completedSets.mapIndexed { idx, set ->
+            "S${idx + 1}: ${set.scoreTeamA}-${set.scoreTeamB}"
+        }
+
+        val subsA = state.teamARotation.substitutions.size
+        val subsB = state.teamBRotation.substitutions.size
+
+        return BluetoothScorePacket(
+            teamAName = state.teamA.displayName,
+            teamBName = state.teamB.displayName,
+            teamACode = state.teamA.shortCode,
+            teamBCode = state.teamB.shortCode,
+            teamAColorHex = state.teamA.colorHex,
+            teamBColorHex = state.teamB.colorHex,
+            scoreA = state.scoreTeamA,
+            scoreB = state.scoreTeamB,
+            setsWonA = state.setsWonTeamA,
+            setsWonB = state.setsWonTeamB,
+            currentSet = state.currentSet,
+            isDecidingSet = state.isDecidingSet,
+            servingTeamId = state.servingTeamId,
+            targetPoints = if (state.isDecidingSet) config.pointsDecidingSet else config.pointsRegularSet,
+            timeoutsUsedA = state.teamATimeoutsUsed,
+            timeoutsRemainingA = (config.timeoutsPerTeamPerSet - state.teamATimeoutsUsed).coerceAtLeast(0),
+            timeoutsUsedB = state.teamBTimeoutsUsed,
+            timeoutsRemainingB = (config.timeoutsPerTeamPerSet - state.teamBTimeoutsUsed).coerceAtLeast(0),
+            maxTimeoutsPerSet = config.timeoutsPerTeamPerSet,
+            subsUsedA = subsA,
+            subsRemainingA = (config.maxSubstitutionsPerSet - subsA).coerceAtLeast(0),
+            subsUsedB = subsB,
+            subsRemainingB = (config.maxSubstitutionsPerSet - subsB).coerceAtLeast(0),
+            isMatchFinished = state.isMatchFinished,
+            isSetFinished = state.isSetFinished,
+            winnerTeamId = state.winnerTeamId,
+            activeTimeoutSeconds = _activeTimeoutSeconds.value,
+            activeTimeoutTeamName = _activeTimeoutTeam.value?.displayName,
+            clockFormatted = clock.formattedTime,
+            clockIsRunning = clock.isRunning,
+            completedSetsSummary = setSummary,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Broadcasts current score packet to connected Big Scoreboard device
+     */
+    fun broadcastBluetoothScore() {
+        if (bluetoothSyncManager.connectionState.value == BluetoothConnectionState.CONNECTED && bluetoothSyncManager.isServerRole.value) {
+            bluetoothSyncManager.sendScorePacket(buildCurrentScorePacket())
+        }
+    }
+
+    /**
+     * Host this device as Referee Console transmitter (listens for Scoreboard connections)
+     */
+    fun startBluetoothServer() {
+        bluetoothSyncManager.startServer()
+    }
+
+    /**
+     * Connect this device as remote Scoreboard receiver to a referee device
+     */
+    fun connectBluetoothScoreboard(deviceAddress: String) {
+        bluetoothSyncManager.connectToDevice(deviceAddress)
+    }
+
+    /**
+     * Disconnect Bluetooth connection
+     */
+    fun disconnectBluetooth() {
+        bluetoothSyncManager.disconnect()
+    }
+
+    /**
+     * Toggles in-app demo simulation mode for testing Bluetooth scoreboard on a single device
+     */
+    fun toggleBluetoothSimulation() {
+        bluetoothSyncManager.toggleSimulationMode(buildCurrentScorePacket())
     }
 }
