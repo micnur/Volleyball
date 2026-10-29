@@ -62,6 +62,7 @@ fun ScoreBoardHeader(
     clockState: MatchClockState? = null,
     onSwitchSidesClick: () -> Unit,
     onTimerToggleClick: (() -> Unit)? = null,
+    onToggleServingTeamClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val teamLeft = matchState.teamOnSide(CourtSide.LEFT)
@@ -252,13 +253,27 @@ fun ScoreBoardHeader(
                             maxLines = 1
                         )
                         if (isLeftServing) {
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                imageVector = Icons.Default.SportsVolleyball,
-                                contentDescription = "Serving",
-                                tint = VolleyballGold,
-                                modifier = Modifier.size(15.dp)
-                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(VolleyballGold.copy(alpha = 0.22f))
+                                    .border(BorderStroke(1.dp, VolleyballGold.copy(alpha = 0.6f)), CircleShape)
+                                    .clickable(
+                                        enabled = onToggleServingTeamClick != null,
+                                        onClick = { onToggleServingTeamClick?.invoke() }
+                                    )
+                                    .padding(3.dp)
+                                    .testTag("serving_ball_icon_left"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SportsVolleyball,
+                                    contentDescription = "Serving - Tap to change serve",
+                                    tint = VolleyballGold,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
                         }
                     }
 
@@ -358,13 +373,27 @@ fun ScoreBoardHeader(
                         horizontalArrangement = Arrangement.End
                     ) {
                         if (isRightServing) {
-                            Icon(
-                                imageVector = Icons.Default.SportsVolleyball,
-                                contentDescription = "Serving",
-                                tint = VolleyballGold,
-                                modifier = Modifier.size(15.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(VolleyballGold.copy(alpha = 0.22f))
+                                    .border(BorderStroke(1.dp, VolleyballGold.copy(alpha = 0.6f)), CircleShape)
+                                    .clickable(
+                                        enabled = onToggleServingTeamClick != null,
+                                        onClick = { onToggleServingTeamClick?.invoke() }
+                                    )
+                                    .padding(3.dp)
+                                    .testTag("serving_ball_icon_right"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SportsVolleyball,
+                                    contentDescription = "Serving - Tap to change serve",
+                                    tint = VolleyballGold,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(3.dp))
                         }
                         Text(
                             text = teamRight.displayName,

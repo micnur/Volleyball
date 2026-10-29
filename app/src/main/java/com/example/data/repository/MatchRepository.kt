@@ -66,46 +66,22 @@ class MatchRepository(context: Context) {
 
     companion object {
         fun createDefaultTeamA(): Team {
-            val players = listOf(
-                Player(number = 1, name = "", role = PositionRole.SETTER, isCaptain = true),
-                Player(number = 2, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 3, name = "", role = PositionRole.MIDDLE_BLOCKER),
-                Player(number = 4, name = "", role = PositionRole.OPPOSITE),
-                Player(number = 5, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 6, name = "", role = PositionRole.MIDDLE_BLOCKER),
-                Player(number = 7, name = "", role = PositionRole.LIBERO, isLibero = true),
-                Player(number = 8, name = "", role = PositionRole.SETTER),
-                Player(number = 9, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 10, name = "", role = PositionRole.MIDDLE_BLOCKER)
-            )
             return Team(
                 id = "team_a",
                 name = "",
                 shortCode = "",
                 colorHex = 0xFF2563EB, // Blue
-                roster = players
+                roster = emptyList()
             )
         }
 
         fun createDefaultTeamB(): Team {
-            val players = listOf(
-                Player(number = 1, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 2, name = "", role = PositionRole.OPPOSITE, isCaptain = true),
-                Player(number = 3, name = "", role = PositionRole.MIDDLE_BLOCKER),
-                Player(number = 4, name = "", role = PositionRole.SETTER),
-                Player(number = 5, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 6, name = "", role = PositionRole.MIDDLE_BLOCKER),
-                Player(number = 7, name = "", role = PositionRole.LIBERO, isLibero = true),
-                Player(number = 8, name = "", role = PositionRole.SETTER),
-                Player(number = 9, name = "", role = PositionRole.OUTSIDE_HITTER),
-                Player(number = 10, name = "", role = PositionRole.MIDDLE_BLOCKER)
-            )
             return Team(
                 id = "team_b",
                 name = "",
                 shortCode = "",
                 colorHex = 0xFFDC2626, // Red
-                roster = players
+                roster = emptyList()
             )
         }
 

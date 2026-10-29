@@ -86,14 +86,14 @@ fun MatchSetupScreen(
     var teamACode by remember { mutableStateOf(currentMatch.teamA.shortCode) }
     var teamAColorHex by remember { mutableStateOf(currentMatch.teamA.colorHex) }
     var teamARoster by remember {
-        mutableStateOf(currentMatch.teamA.roster.ifEmpty { MatchRepository.createDefaultTeamA().roster })
+        mutableStateOf(currentMatch.teamA.roster)
     }
 
     var teamBName by remember { mutableStateOf(currentMatch.teamB.name) }
     var teamBCode by remember { mutableStateOf(currentMatch.teamB.shortCode) }
     var teamBColorHex by remember { mutableStateOf(currentMatch.teamB.colorHex) }
     var teamBRoster by remember {
-        mutableStateOf(currentMatch.teamB.roster.ifEmpty { MatchRepository.createDefaultTeamB().roster })
+        mutableStateOf(currentMatch.teamB.roster)
     }
 
     var serverFirstTeamId by remember { mutableStateOf("team_a") }

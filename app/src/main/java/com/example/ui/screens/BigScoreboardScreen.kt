@@ -393,6 +393,9 @@ fun BigScoreboardScreen(
                     onScoreMinus = {
                         viewModel.undo()
                     },
+                    onToggleServingTeam = {
+                        viewModel.toggleServingTeam()
+                    },
                     modifier = Modifier.weight(1f)
                 )
 
@@ -415,37 +418,11 @@ fun BigScoreboardScreen(
                     onScoreMinus = {
                         viewModel.undo()
                     },
+                    onToggleServingTeam = {
+                        viewModel.toggleServingTeam()
+                    },
                     modifier = Modifier.weight(1f)
                 )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Bottom Quick Bar: FIVB Rule reference and Standalone Scoreboard Notice
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = CourtSurface),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "FIVB Official Rules: 2 Timeouts (30s) & 6 Substitutions per set",
-                        fontSize = 11.sp,
-                        color = Color(0xFF94A3B8)
-                    )
-                    Text(
-                        text = if (isServer) "TRANSMITTING" else if (remotePacket != null) "RECEIVING LIVE" else "STANDALONE",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = VolleyballGold
-                    )
-                }
             }
         }
     }
@@ -478,6 +455,7 @@ private fun BigTeamScoreCard(
     subsRemaining: Int,
     onScorePlus: () -> Unit,
     onScoreMinus: () -> Unit,
+    onToggleServingTeam: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val teamColor = Color(teamColorHex)
@@ -524,13 +502,17 @@ private fun BigTeamScoreCard(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .background(if (isServing) VolleyballGold else Color.Transparent)
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                    .clickable(enabled = onToggleServingTeam != null) {
+                        onToggleServingTeam?.invoke()
+                    }
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                    .testTag("scoreboard_serve_indicator_$teamCode"),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (isServing) {
                     Icon(
                         imageVector = Icons.Default.SportsVolleyball,
-                        contentDescription = "Serving",
+                        contentDescription = "Serving - Tap to change serve",
                         tint = CourtDark,
                         modifier = Modifier.size(14.dp)
                     )

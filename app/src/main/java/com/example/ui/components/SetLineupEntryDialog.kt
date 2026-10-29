@@ -38,6 +38,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -91,6 +93,7 @@ fun SetLineupEntryDialog(
     targetSetNumber: Int = matchState.currentSet,
     onDismiss: () -> Unit,
     onUpdatePlayer: ((teamId: String, player: Player) -> Unit)? = null,
+    onUpdateTeamName: ((teamId: String, newName: String, newShortCode: String) -> Unit)? = null,
     onConfirmLineups: (
         setNumber: Int,
         teamALineup: Map<Int, Player>,
@@ -101,6 +104,18 @@ fun SetLineupEntryDialog(
     ) -> Unit
 ) {
     var activeTeamTab by remember { mutableIntStateOf(0) } // 0 = Team A, 1 = Team B
+
+    // Team state to support in-dialog team name editing
+    var teamA by remember(matchState.teamA.id, matchState.teamA.name, matchState.teamA.shortCode) {
+        mutableStateOf(matchState.teamA)
+    }
+    var teamB by remember(matchState.teamB.id, matchState.teamB.name, matchState.teamB.shortCode) {
+        mutableStateOf(matchState.teamB)
+    }
+
+    // Dialog state for editing a team's name
+    var teamBeingEdited by remember { mutableStateOf<Team?>(null) }
+    var showEditTeamDialog by remember { mutableStateOf(false) }
 
     // Mutable Rosters to support adding & editing players
     var rosterA by remember { mutableStateOf(matchState.teamA.roster) }
@@ -143,7 +158,7 @@ fun SetLineupEntryDialog(
         )
     }
 
-    val activeTeam = if (activeTeamTab == 0) matchState.teamA else matchState.teamB
+    val activeTeam = if (activeTeamTab == 0) teamA else teamB
     val currentLineup = if (activeTeamTab == 0) teamALineup else teamBLineup
 
     fun updateCurrentLineup(newMap: MutableMap<Int, Player>) {
@@ -254,11 +269,11 @@ fun SetLineupEntryDialog(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(Color(matchState.teamA.colorHex))
+                                        .background(Color(teamA.colorHex))
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = matchState.teamA.displayName,
+                                    text = teamA.displayName,
                                     fontSize = 12.sp,
                                     fontWeight = if (activeTeamTab == 0) FontWeight.Bold else FontWeight.Normal,
                                     color = if (activeTeamTab == 0) VolleyballGold else Color.White
@@ -269,6 +284,19 @@ fun SetLineupEntryDialog(
                                     fontSize = 10.sp,
                                     color = if (isTeamAComplete) Color(0xFF34D399) else SanctionYellow,
                                     fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit ${teamA.displayName}",
+                                    tint = if (activeTeamTab == 0) VolleyballGold else Color(0xFF94A3B8),
+                                    modifier = Modifier
+                                        .size(13.dp)
+                                        .clickable {
+                                            teamBeingEdited = teamA
+                                            showEditTeamDialog = true
+                                        }
+                                        .testTag("tab_edit_team_a_btn")
                                 )
                             }
                         }
@@ -288,11 +316,11 @@ fun SetLineupEntryDialog(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(Color(matchState.teamB.colorHex))
+                                        .background(Color(teamB.colorHex))
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = matchState.teamB.displayName,
+                                    text = teamB.displayName,
                                     fontSize = 12.sp,
                                     fontWeight = if (activeTeamTab == 1) FontWeight.Bold else FontWeight.Normal,
                                     color = if (activeTeamTab == 1) VolleyballGold else Color.White
@@ -303,6 +331,19 @@ fun SetLineupEntryDialog(
                                     fontSize = 10.sp,
                                     color = if (isTeamBComplete) Color(0xFF34D399) else SanctionYellow,
                                     fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit ${teamB.displayName}",
+                                    tint = if (activeTeamTab == 1) VolleyballGold else Color(0xFF94A3B8),
+                                    modifier = Modifier
+                                        .size(13.dp)
+                                        .clickable {
+                                            teamBeingEdited = teamB
+                                            showEditTeamDialog = true
+                                        }
+                                        .testTag("tab_edit_team_b_btn")
                                 )
                             }
                         }
@@ -393,12 +434,38 @@ fun SetLineupEntryDialog(
                 // Visual Court Lineup Grid: 6 Positions
                 // Front Row: Pos IV (Left Front), Pos III (Middle Front), Pos II (Right Front)
                 // Back Row:  Pos V (Left Back),  Pos VI (Middle Back), Pos I (Right Back - Server!)
-                Text(
-                    text = "${activeTeam.displayName.uppercase()} COURT POSITIONS (FIVB ROTATIONAL ORDER)",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF64748B)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${activeTeam.displayName.uppercase()} COURT POSITIONS (FIVB ROTATIONAL ORDER)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF64748B)
+                    )
+
+                    Surface(
+                        onClick = {
+                            teamBeingEdited = activeTeam
+                            showEditTeamDialog = true
+                        },
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color(0xFF1E293B),
+                        border = BorderStroke(1.dp, CourtLines),
+                        modifier = Modifier.testTag("edit_team_name_header_btn")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = null, tint = VolleyballGold, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text("Edit Team", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = VolleyballGold)
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Card(
@@ -656,15 +723,43 @@ fun SetLineupEntryDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(availableRoster) { player ->
-                        val alreadyAssignedPos = currentLineup.entries.find { it.value.id == player.id }?.key
-                        val isAssignedToCurrent = alreadyAssignedPos == activePositionSlot
+                if (availableRoster.isEmpty()) {
+                    Surface(
+                        onClick = {
+                            playerBeingEdited = null
+                            showEditPlayerDialog = true
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color(0xFF131D31),
+                        border = BorderStroke(1.dp, CourtLines),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .testTag("empty_roster_add_player_prompt")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.Add, null, tint = VolleyballGold, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "No players on ${activeTeam.displayName} yet. Tap here to add player",
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = VolleyballGold
+                            )
+                        }
+                    }
+                } else {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(availableRoster) { player ->
+                            val alreadyAssignedPos = currentLineup.entries.find { it.value.id == player.id }?.key
+                            val isAssignedToCurrent = alreadyAssignedPos == activePositionSlot
 
                         Box(
                             modifier = Modifier
@@ -701,6 +796,16 @@ fun SetLineupEntryDialog(
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (player.colorHex != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(player.colorHex))
+                                                .border(0.5.dp, Color.White, CircleShape)
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                    }
                                     Text(
                                         text = "#${player.number}",
                                         fontSize = 15.sp,
@@ -737,8 +842,9 @@ fun SetLineupEntryDialog(
                         }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
                 // Set First Server Selection
                 Card(
@@ -885,6 +991,28 @@ fun SetLineupEntryDialog(
             }
         )
     }
+
+    // Edit Team Name Dialog
+    if (showEditTeamDialog && teamBeingEdited != null) {
+        val target = teamBeingEdited!!
+        EditTeamNameDialog(
+            team = target,
+            onDismiss = {
+                showEditTeamDialog = false
+                teamBeingEdited = null
+            },
+            onSave = { newName, newCode ->
+                if (target.id == teamA.id) {
+                    teamA = teamA.copy(name = newName, shortCode = newCode)
+                } else {
+                    teamB = teamB.copy(name = newName, shortCode = newCode)
+                }
+                onUpdateTeamName?.invoke(target.id, newName, newCode)
+                showEditTeamDialog = false
+                teamBeingEdited = null
+            }
+        )
+    }
 }
 
 @Composable
@@ -972,12 +1100,24 @@ private fun PositionSlotCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "#${player.number}",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Black,
-                        color = if (isServer) VolleyballGold else Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (player.colorHex != null) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(player.colorHex))
+                                    .border(0.5.dp, Color.White, CircleShape)
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                        }
+                        Text(
+                            text = "#${player.number}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black,
+                            color = if (isServer) VolleyballGold else Color.White
+                        )
+                    }
                     if (player.name.isNotBlank()) {
                         Text(
                             text = player.name,
@@ -1002,6 +1142,172 @@ private fun PositionSlotCard(
                         color = if (isSelected) VolleyballGold else Color(0xFF64748B),
                         fontWeight = FontWeight.SemiBold
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditTeamNameDialog(
+    team: Team,
+    onDismiss: () -> Unit,
+    onSave: (newName: String, newShortCode: String) -> Unit
+) {
+    var nameText by remember { mutableStateOf(team.name) }
+    var codeText by remember { mutableStateOf(team.shortCode) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = CourtSurface,
+            border = BorderStroke(1.dp, CourtLines),
+            modifier = Modifier
+                .fillMaxWidth(0.94f)
+                .testTag("edit_team_name_dialog")
+        ) {
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(team.colorHex)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "Edit Team Name",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Update team identity for this match",
+                                fontSize = 10.sp,
+                                color = Color(0xFF94A3B8)
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Team Name Input
+                OutlinedTextField(
+                    value = nameText,
+                    onValueChange = {
+                        nameText = it
+                        errorMessage = null
+                        if (codeText.isBlank() || codeText == team.shortCode) {
+                            codeText = it.take(3).uppercase()
+                        }
+                    },
+                    label = { Text("Team Name", color = Color(0xFF94A3B8)) },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = VolleyballGold,
+                        unfocusedBorderColor = CourtLines,
+                        cursorColor = VolleyballGold
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("edit_team_name_input")
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Short Code Input (3-4 letters)
+                OutlinedTextField(
+                    value = codeText,
+                    onValueChange = {
+                        codeText = it.take(4).uppercase()
+                        errorMessage = null
+                    },
+                    label = { Text("Short Code (e.g. POL, ITA, TMA)", color = Color(0xFF94A3B8)) },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = VolleyballGold,
+                        unfocusedBorderColor = CourtLines,
+                        cursorColor = VolleyballGold
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("edit_team_code_input")
+                )
+
+                if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = errorMessage ?: "",
+                        color = SanctionRed,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Action Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF94A3B8))
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = {
+                            val trimmedName = nameText.trim()
+                            if (trimmedName.isBlank()) {
+                                errorMessage = "Team name cannot be empty"
+                                return@Button
+                            }
+                            val trimmedCode = codeText.trim().ifBlank { trimmedName.take(3).uppercase() }
+                            onSave(trimmedName, trimmedCode)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = VolleyballGold,
+                            contentColor = CourtDark
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.testTag("save_team_name_btn")
+                    ) {
+                        Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Save Team", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }

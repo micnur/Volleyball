@@ -8,7 +8,8 @@ data class Player(
     val name: String,
     val role: PositionRole = PositionRole.OUTSIDE_HITTER,
     val isCaptain: Boolean = false,
-    val isLibero: Boolean = false
+    val isLibero: Boolean = false,
+    val colorHex: Long? = null
 ) {
     val displayLabel: String
         get() = buildString {

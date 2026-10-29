@@ -237,14 +237,6 @@ fun FivbRulesConfigScreen(
                                 )
                             }
                         }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(VolleyballGold)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text("NEW", fontSize = 9.sp, fontWeight = FontWeight.Black, color = CourtDark)
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))

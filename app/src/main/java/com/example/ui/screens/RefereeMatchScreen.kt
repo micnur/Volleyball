@@ -217,7 +217,8 @@ fun RefereeMatchScreen(
                 matchState = matchState,
                 clockState = clockState,
                 onSwitchSidesClick = { viewModel.switchCourtSides() },
-                onTimerToggleClick = { viewModel.toggleClock() }
+                onTimerToggleClick = { viewModel.toggleClock() },
+                onToggleServingTeamClick = { viewModel.toggleServingTeam() }
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -459,7 +460,8 @@ fun RefereeMatchScreen(
                 },
                 onManualRotateClick = { teamId, clockwise ->
                     viewModel.manualRotate(teamId, clockwise)
-                }
+                },
+                onToggleServingTeamClick = { viewModel.toggleServingTeam() }
             )
 
             Spacer(modifier = Modifier.height(5.dp))
@@ -553,6 +555,9 @@ fun RefereeMatchScreen(
             onDismiss = { viewModel.closeLineupDialog() },
             onUpdatePlayer = { teamId, player ->
                 viewModel.updatePlayer(teamId, player)
+            },
+            onUpdateTeamName = { teamId, newName, newCode ->
+                viewModel.updateTeamName(teamId, newName, newCode)
             },
             onConfirmLineups = { setNum, teamALineup, teamBLineup, teamALibero, teamBLibero, serverId ->
                 viewModel.applyStartingLineups(

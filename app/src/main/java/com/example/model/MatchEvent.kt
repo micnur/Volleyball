@@ -33,6 +33,7 @@ enum class EventType(val category: String, val label: String) {
 
     // Game Flow
     SIDE_SWITCH("Flow", "Side Switch"),
+    SERVE_CHANGE("Flow", "Serving Team Changed"),
     SET_START("Flow", "Set Started"),
     LINEUP_CONFIRMED("Flow", "Starting Line-up Registered"),
     SET_END("Flow", "Set Finished"),

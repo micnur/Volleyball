@@ -34,9 +34,33 @@ class ExampleRobolectricTest {
     val initialState = com.example.data.repository.MatchRepository.createInitialMatchState()
     org.junit.Assert.assertTrue(initialState.setLineupHistory.containsKey(1))
     val set1Lineup = initialState.setLineupHistory[1]!!
-    assertEquals(6, set1Lineup.teamALineup.size)
-    assertEquals(6, set1Lineup.teamBLineup.size)
-    org.junit.Assert.assertNotNull(set1Lineup.teamALineup[1])
+    // By default rosters are empty until referee manually adds players
+    assertEquals(0, set1Lineup.teamALineup.size)
+    assertEquals(0, set1Lineup.teamBLineup.size)
+    assertEquals(0, initialState.teamA.roster.size)
+    assertEquals(0, initialState.teamB.roster.size)
+  }
+
+  @Test
+  fun `verify player shirt color assignment and manual addition`() {
+    val playerWithColor = com.example.model.Player(
+      id = "p1",
+      number = 7,
+      name = "Smith",
+      colorHex = 0xFFEAB308 // Custom yellow shirt
+    )
+    assertEquals(0xFFEAB308, playerWithColor.colorHex)
+    assertEquals(7, playerWithColor.number)
+
+    val teamWithPlayers = com.example.model.Team(
+      id = "team_custom",
+      name = "Spikers",
+      shortCode = "SPK",
+      colorHex = 0xFF2563EB,
+      roster = listOf(playerWithColor)
+    )
+    assertEquals(1, teamWithPlayers.roster.size)
+    assertEquals(0xFFEAB308, teamWithPlayers.roster.first().colorHex)
   }
 
   @Test
@@ -107,5 +131,52 @@ class ExampleRobolectricTest {
       // Expected in headless Robolectric JVM test sandbox where native Skia PDF is unlinked
       org.junit.Assert.assertTrue(e.message?.contains("closed") == true || e.message?.contains("document") == true)
     }
+  }
+
+  @Test
+  fun `verify quickly changing serving team toggles server and records event`() {
+    val application = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.RefereeViewModel(application)
+
+    val initialServer = viewModel.matchState.value.servingTeamId
+    val teamAId = viewModel.matchState.value.teamA.id
+    val teamBId = viewModel.matchState.value.teamB.id
+
+    // Tap ball icon to toggle serve
+    viewModel.toggleServingTeam()
+    val toggledServer = viewModel.matchState.value.servingTeamId
+    org.junit.Assert.assertNotEquals(initialServer, toggledServer)
+    if (initialServer == teamAId) {
+      assertEquals(teamBId, toggledServer)
+    } else {
+      assertEquals(teamAId, toggledServer)
+    }
+
+    // Verify event is logged
+    val lastEvent = viewModel.matchState.value.events.last()
+    assertEquals(com.example.model.EventType.SERVE_CHANGE, lastEvent.eventType)
+    assertEquals(toggledServer, lastEvent.teamId)
+
+    // Toggle again to return to initial
+    viewModel.toggleServingTeam()
+    assertEquals(initialServer, viewModel.matchState.value.servingTeamId)
+  }
+
+  @Test
+  fun `verify updating team name updates match state and short code`() {
+    val application = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.RefereeViewModel(application)
+
+    val teamAId = viewModel.matchState.value.teamA.id
+    viewModel.updateTeamName(teamAId, "Poland Eagles", "POL")
+
+    assertEquals("Poland Eagles", viewModel.matchState.value.teamA.name)
+    assertEquals("POL", viewModel.matchState.value.teamA.shortCode)
+
+    val teamBId = viewModel.matchState.value.teamB.id
+    viewModel.updateTeamName(teamBId, "Italy Azzurri", "ITA")
+
+    assertEquals("Italy Azzurri", viewModel.matchState.value.teamB.name)
+    assertEquals("ITA", viewModel.matchState.value.teamB.shortCode)
   }
 }

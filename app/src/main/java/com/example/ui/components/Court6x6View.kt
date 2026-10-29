@@ -65,6 +65,7 @@ fun Court6x6View(
     matchState: MatchState,
     onPlayerClick: (teamId: String, pos: Int, player: Player) -> Unit,
     onManualRotateClick: (teamId: String, clockwise: Boolean) -> Unit,
+    onToggleServingTeamClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val teamLeft = matchState.teamOnSide(CourtSide.LEFT)
@@ -164,6 +165,7 @@ fun Court6x6View(
                         isServing = isLeftServing,
                         isLeftCourt = true,
                         onPlayerClick = { pos, player -> onPlayerClick(teamLeft.id, pos, player) },
+                        onToggleServingTeamClick = onToggleServingTeamClick,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
@@ -172,7 +174,7 @@ fun Court6x6View(
                     // CENTER NET
                     Box(
                         modifier = Modifier
-                            .width(8.dp)
+                            .width(10.dp)
                             .fillMaxHeight()
                             .background(
                                 Brush.verticalGradient(
@@ -188,12 +190,40 @@ fun Court6x6View(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "NET",
-                            fontSize = 6.sp,
-                            fontWeight = FontWeight.Black,
-                            color = CourtDark
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(Color.White.copy(alpha = 0.85f))
+                                .padding(horizontal = 1.dp, vertical = 2.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "N",
+                                    fontSize = 6.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = CourtDark,
+                                    lineHeight = 7.sp
+                                )
+                                Text(
+                                    text = "E",
+                                    fontSize = 6.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = CourtDark,
+                                    lineHeight = 7.sp
+                                )
+                                Text(
+                                    text = "T",
+                                    fontSize = 6.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = CourtDark,
+                                    lineHeight = 7.sp
+                                )
+                            }
+                        }
                     }
 
                     // RIGHT HALF COURT (Net on the LEFT side of this half)
@@ -203,6 +233,7 @@ fun Court6x6View(
                         isServing = isRightServing,
                         isLeftCourt = false,
                         onPlayerClick = { pos, player -> onPlayerClick(teamRight.id, pos, player) },
+                        onToggleServingTeamClick = onToggleServingTeamClick,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
@@ -242,6 +273,7 @@ private fun HalfCourtView(
     isServing: Boolean,
     isLeftCourt: Boolean,
     onPlayerClick: (pos: Int, player: Player) -> Unit,
+    onToggleServingTeamClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     // If Left court:
@@ -263,9 +295,9 @@ private fun HalfCourtView(
                     .padding(end = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                PlayerCard(5, rotation.playerAt(5), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(6, rotation.playerAt(6), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(1, rotation.playerAt(1), isServer = isServing, team = team, onPlayerClick = onPlayerClick)
+                PlayerCard(5, rotation.playerAt(5), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(6, rotation.playerAt(6), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(1, rotation.playerAt(1), isServer = isServing, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
             }
 
             // ATTACK LINE (3m)
@@ -284,9 +316,9 @@ private fun HalfCourtView(
                     .padding(start = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                PlayerCard(4, rotation.playerAt(4), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(3, rotation.playerAt(3), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(2, rotation.playerAt(2), isServer = false, team = team, onPlayerClick = onPlayerClick)
+                PlayerCard(4, rotation.playerAt(4), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(3, rotation.playerAt(3), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(2, rotation.playerAt(2), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
             }
         } else {
             // FRONT ZONE (P2 top, P3 middle, P4 bottom)
@@ -297,9 +329,9 @@ private fun HalfCourtView(
                     .padding(end = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                PlayerCard(2, rotation.playerAt(2), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(3, rotation.playerAt(3), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(4, rotation.playerAt(4), isServer = false, team = team, onPlayerClick = onPlayerClick)
+                PlayerCard(2, rotation.playerAt(2), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(3, rotation.playerAt(3), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(4, rotation.playerAt(4), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
             }
 
             // ATTACK LINE (3m)
@@ -318,9 +350,9 @@ private fun HalfCourtView(
                     .padding(start = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                PlayerCard(1, rotation.playerAt(1), isServer = isServing, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(6, rotation.playerAt(6), isServer = false, team = team, onPlayerClick = onPlayerClick)
-                PlayerCard(5, rotation.playerAt(5), isServer = false, team = team, onPlayerClick = onPlayerClick)
+                PlayerCard(1, rotation.playerAt(1), isServer = isServing, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(6, rotation.playerAt(6), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
+                PlayerCard(5, rotation.playerAt(5), isServer = false, team = team, onPlayerClick = onPlayerClick, onToggleServingTeamClick = onToggleServingTeamClick)
             }
         }
     }
@@ -333,6 +365,7 @@ private fun PlayerCard(
     isServer: Boolean,
     team: Team,
     onPlayerClick: (pos: Int, player: Player) -> Unit,
+    onToggleServingTeamClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isLibero = player?.isLibero == true
@@ -396,11 +429,15 @@ private fun PlayerCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(VolleyballGold, RoundedCornerShape(2.dp))
+                            .clickable(enabled = onToggleServingTeamClick != null) {
+                                onToggleServingTeamClick?.invoke()
+                            }
                             .padding(horizontal = 2.dp, vertical = 0.5.dp)
+                            .testTag("court_serve_badge_${team.id}")
                     ) {
                         Icon(
                             imageVector = Icons.Default.SportsVolleyball,
-                            contentDescription = "Server",
+                            contentDescription = "Server - Tap to change serve",
                             tint = CourtDark,
                             modifier = Modifier.size(6.5.dp)
                         )
@@ -434,6 +471,16 @@ private fun PlayerCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
+                if (player?.colorHex != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(Color(player.colorHex))
+                            .border(0.5.dp, Color.White, CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                }
                 Text(
                     text = player?.let { "#${it.number}" } ?: "--",
                     fontSize = 10.sp,

@@ -646,6 +646,49 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /**
+     * Quickly change the serving team (FIVB serve correction/manual assignment)
+     * e.g. when referee presses the volleyball icon on the main screen scoreboard.
+     */
+    fun toggleServingTeam() {
+        val current = _matchState.value
+        if (current.isSetFinished || current.isMatchFinished) return
+
+        undoStack.add(current.createSnapshot())
+        _canUndo.value = true
+
+        val newServingTeamId = if (current.servingTeamId == current.teamA.id) {
+            current.teamB.id
+        } else {
+            current.teamA.id
+        }
+
+        val newServingTeam = if (newServingTeamId == current.teamA.id) current.teamA else current.teamB
+
+        val event = MatchEvent(
+            setNumber = current.currentSet,
+            scoreTeamA = current.scoreTeamA,
+            scoreTeamB = current.scoreTeamB,
+            teamId = newServingTeamId,
+            eventType = EventType.SERVE_CHANGE,
+            note = "Serving team changed to ${newServingTeam.displayName}"
+        )
+
+        val updated = current.copy(
+            servingTeamId = newServingTeamId,
+            events = current.events + event
+        )
+
+        soundFeedback.playWhistle(
+            enabled = current.rules.whistleAudioEnabled,
+            haptic = current.rules.hapticFeedbackEnabled
+        )
+
+        _matchState.value = updated
+        broadcastBluetoothScore()
+        persistCurrentMatch()
+    }
+
+    /**
      * Switch court sides manually or during deciding set
      */
     fun switchCourtSides() {
@@ -903,6 +946,28 @@ class RefereeViewModel(application: Application) : AndroidViewModel(application)
             teamBRotation = if (!isTeamA) updatedRotation else current.teamBRotation,
             setLineupHistory = newHistory
         )
+        persistCurrentMatch()
+    }
+
+    /**
+     * Update a team's name and optional short code in the active match
+     */
+    fun updateTeamName(teamId: String, newName: String, newShortCode: String? = null) {
+        val current = _matchState.value
+        val isTeamA = teamId == current.teamA.id
+        val targetTeam = if (isTeamA) current.teamA else current.teamB
+        val trimmedName = newName.trim().ifBlank { targetTeam.name }
+        val finalCode = newShortCode?.trim()?.take(4)?.uppercase()?.ifBlank { targetTeam.shortCode }
+            ?: trimmedName.take(3).uppercase()
+
+        val updatedTeam = targetTeam.copy(name = trimmedName, shortCode = finalCode)
+        val updatedState = if (isTeamA) {
+            current.copy(teamA = updatedTeam)
+        } else {
+            current.copy(teamB = updatedTeam)
+        }
+
+        _matchState.value = updatedState
         persistCurrentMatch()
     }
 

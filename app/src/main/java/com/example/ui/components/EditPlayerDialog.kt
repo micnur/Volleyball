@@ -12,11 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -51,6 +56,27 @@ import com.example.ui.theme.CourtLines
 import com.example.ui.theme.CourtSurface
 import com.example.ui.theme.VolleyballGold
 
+data class PlayerShirtColorOption(val hex: Long, val name: String, val isLight: Boolean = false)
+
+val SHIRT_COLOR_PALETTE = listOf(
+    PlayerShirtColorOption(0xFF2563EB, "Royal Blue"),
+    PlayerShirtColorOption(0xFF1E3A8A, "Navy Blue"),
+    PlayerShirtColorOption(0xFF0284C7, "Sky Cyan"),
+    PlayerShirtColorOption(0xFF0D9488, "Teal Green"),
+    PlayerShirtColorOption(0xFF059669, "Pine Green"),
+    PlayerShirtColorOption(0xFF84CC16, "Neon Lime", isLight = true),
+    PlayerShirtColorOption(0xFFEAB308, "Volley Gold", isLight = true),
+    PlayerShirtColorOption(0xFFF59E0B, "Amber Orange"),
+    PlayerShirtColorOption(0xFFEA580C, "Tangerine"),
+    PlayerShirtColorOption(0xFFDC2626, "Crimson Red"),
+    PlayerShirtColorOption(0xFF881337, "Burgundy Wine"),
+    PlayerShirtColorOption(0xFFDB2777, "Hot Pink"),
+    PlayerShirtColorOption(0xFF7C3AED, "Electric Violet"),
+    PlayerShirtColorOption(0xFF4C1D95, "Deep Indigo"),
+    PlayerShirtColorOption(0xFF1E293B, "Charcoal Black"),
+    PlayerShirtColorOption(0xFFE2E8F0, "Silver White", isLight = true)
+)
+
 @Composable
 fun EditPlayerDialog(
     player: Player?,
@@ -64,6 +90,8 @@ fun EditPlayerDialog(
     var selectedRole by remember { mutableStateOf(player?.role ?: PositionRole.OUTSIDE_HITTER) }
     var isCaptain by remember { mutableStateOf(player?.isCaptain ?: false) }
     var isLibero by remember { mutableStateOf(player?.isLibero ?: false) }
+    var selectedColorHex by remember { mutableStateOf(player?.colorHex ?: teamColorHex) }
+    var showColorPalette by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -120,7 +148,7 @@ fun EditPlayerDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Shirt Number Field
+                // Shirt Number Field with Assigned Color Badge
                 OutlinedTextField(
                     value = numberText,
                     onValueChange = { input ->
@@ -132,16 +160,133 @@ fun EditPlayerDialog(
                     label = { Text("Shirt / Jersey Number (1-99)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    leadingIcon = {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(Color(selectedColorHex))
+                                .border(1.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                                .clickable { showColorPalette = !showColorPalette }
+                                .testTag("shirt_color_preview_circle"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (numberText.isNotBlank()) {
+                                Text(
+                                    text = numberText,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = if (SHIRT_COLOR_PALETTE.find { it.hex == selectedColorHex }?.isLight == true) Color.Black else Color.White
+                                )
+                            }
+                        }
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { showColorPalette = !showColorPalette },
+                            modifier = Modifier.testTag("toggle_shirt_color_palette_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Palette,
+                                contentDescription = "Pick Shirt Color",
+                                tint = Color(selectedColorHex)
+                            )
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().testTag("edit_player_number_input"),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = VolleyballGold,
+                        focusedBorderColor = Color(selectedColorHex),
                         unfocusedBorderColor = CourtLines,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White
                     )
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                // Shirt Color Selection Row
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Assigned Shirt Color: ${SHIRT_COLOR_PALETTE.find { it.hex == selectedColorHex }?.name ?: "Custom"}",
+                            fontSize = 11.sp,
+                            color = Color(0xFFCBD5E1),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("player_shirt_color_row")
+                    ) {
+                        // First option: Default Team Color
+                        item {
+                            val isTeamColorSelected = selectedColorHex == teamColorHex
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(teamColorHex))
+                                    .border(
+                                        width = if (isTeamColorSelected) 2.5.dp else 1.dp,
+                                        color = if (isTeamColorSelected) VolleyballGold else Color.White.copy(alpha = 0.3f),
+                                        shape = CircleShape
+                                    )
+                                    .clickable { selectedColorHex = teamColorHex },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isTeamColorSelected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "Selected Team Color",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Other standard colors
+                        items(SHIRT_COLOR_PALETTE.filter { it.hex != teamColorHex }) { colorOpt ->
+                            val isSelected = selectedColorHex == colorOpt.hex
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(colorOpt.hex))
+                                    .border(
+                                        width = if (isSelected) 2.5.dp else 1.dp,
+                                        color = if (isSelected) VolleyballGold else Color.White.copy(alpha = 0.3f),
+                                        shape = CircleShape
+                                    )
+                                    .clickable { selectedColorHex = colorOpt.hex }
+                                    .testTag("shirt_color_${colorOpt.name.lowercase().replace(" ", "_")}"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "Selected ${colorOpt.name}",
+                                        tint = if (colorOpt.isLight) Color.Black else Color.White,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
 
                 // Player Name Field
                 OutlinedTextField(
@@ -272,13 +417,15 @@ fun EditPlayerDialog(
                                 name = nameText.trim(),
                                 role = selectedRole,
                                 isCaptain = isCaptain,
-                                isLibero = isLibero
+                                isLibero = isLibero,
+                                colorHex = selectedColorHex
                             )).copy(
                                 number = num,
                                 name = nameText.trim(),
                                 role = selectedRole,
                                 isCaptain = isCaptain,
-                                isLibero = isLibero
+                                isLibero = isLibero,
+                                colorHex = selectedColorHex
                             )
                             onSavePlayer(updated)
                         },
