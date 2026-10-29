@@ -207,12 +207,12 @@ fun FivbRulesConfigScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Big Scoreboard & Bluetooth Sync Card
+            // Scoreboard & Bluetooth Sync Card
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF131D31)),
                 shape = RoundedCornerShape(14.dp),
                 border = BorderStroke(1.5.dp, VolleyballGold),
-                modifier = Modifier.testTag("settings_big_scoreboard_card")
+                modifier = Modifier.testTag("settings_scoreboard_card")
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
@@ -225,7 +225,7 @@ fun FivbRulesConfigScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "BIG SCOREBOARD DISPLAY",
+                                    text = "SCOREBOARD DISPLAY",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color.White
@@ -250,7 +250,7 @@ fun FivbRulesConfigScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Turn this device into a giant digital scoreboard displaying real-time points, sets won, timeouts taken & remaining, and the match clock. Use standalone or sync between two Android devices via Bluetooth (Device 1: VOLLEYREF Controller, Device 2: Big Scoreboard Display).",
+                        text = "Turn this device into a digital scoreboard displaying real-time points, sets won, timeouts taken & remaining, and the match clock. Use standalone or sync between two Android devices via Bluetooth (Device 1: VOLLEYREF Controller, Device 2: Scoreboard Display).",
                         fontSize = 11.sp,
                         color = Color(0xFFCBD5E1),
                         lineHeight = 15.sp
@@ -263,7 +263,7 @@ fun FivbRulesConfigScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(44.dp)
-                            .testTag("settings_open_big_scoreboard_btn"),
+                            .testTag("settings_open_scoreboard_btn"),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = VolleyballGold,
                             contentColor = CourtDark
@@ -272,7 +272,7 @@ fun FivbRulesConfigScreen(
                     ) {
                         Icon(Icons.Default.Tv, null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Open Big Scoreboard", fontSize = 13.sp, fontWeight = FontWeight.Black)
+                        Text("Open Scoreboard", fontSize = 13.sp, fontWeight = FontWeight.Black)
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))

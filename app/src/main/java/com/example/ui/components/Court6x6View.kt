@@ -86,7 +86,7 @@ fun Court6x6View(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(6.dp)
         ) {
             // Court Team Headers & Rotation controls
             Row(
@@ -98,67 +98,61 @@ fun Court6x6View(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = { onManualRotateClick(teamLeft.id, false) },
-                        modifier = Modifier.size(28.dp).testTag("rotate_left_ccw")
+                        modifier = Modifier.size(24.dp).testTag("rotate_left_ccw")
                     ) {
-                        Icon(Icons.Default.RotateLeft, "Rotate Left CCW", tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.RotateLeft, "Rotate Left CCW", tint = Color(0xFF94A3B8), modifier = Modifier.size(15.dp))
                     }
+                    Spacer(modifier = Modifier.width(2.dp))
                     IconButton(
                         onClick = { onManualRotateClick(teamLeft.id, true) },
-                        modifier = Modifier.size(28.dp).testTag("rotate_left_cw")
+                        modifier = Modifier.size(24.dp).testTag("rotate_left_cw")
                     ) {
-                        Icon(Icons.Default.RotateRight, "Rotate Left CW", tint = VolleyballGold, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.RotateRight, "Rotate Left CW", tint = VolleyballGold, modifier = Modifier.size(15.dp))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${teamLeft.displayCode} (Rot #${rotationLeft.rotationNumber})",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(teamLeft.colorHex)
                     )
                 }
 
-                // Center Referee Vantage Label
-                Text(
-                    text = "STAND PERSPECTIVE (NET CENTER)",
-                    fontSize = 9.sp,
-                    color = Color(0xFF64748B),
-                    fontWeight = FontWeight.SemiBold
-                )
-
                 // Right Team Header & Rotation
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "${teamRight.displayCode} (Rot #${rotationRight.rotationNumber})",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(teamRight.colorHex)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     IconButton(
                         onClick = { onManualRotateClick(teamRight.id, true) },
-                        modifier = Modifier.size(28.dp).testTag("rotate_right_cw")
+                        modifier = Modifier.size(24.dp).testTag("rotate_right_cw")
                     ) {
-                        Icon(Icons.Default.RotateRight, "Rotate Right CW", tint = VolleyballGold, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.RotateRight, "Rotate Right CW", tint = VolleyballGold, modifier = Modifier.size(15.dp))
                     }
+                    Spacer(modifier = Modifier.width(2.dp))
                     IconButton(
                         onClick = { onManualRotateClick(teamRight.id, false) },
-                        modifier = Modifier.size(28.dp).testTag("rotate_right_ccw")
+                        modifier = Modifier.size(24.dp).testTag("rotate_right_ccw")
                     ) {
-                        Icon(Icons.Default.RotateLeft, "Rotate Right CCW", tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.RotateLeft, "Rotate Right CCW", tint = Color(0xFF94A3B8), modifier = Modifier.size(15.dp))
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // The Court Canvas: Left Half | Center Net | Right Half
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .height(122.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFF0F172A))
-                    .border(1.dp, CourtLines, RoundedCornerShape(10.dp))
+                    .border(1.dp, CourtLines, RoundedCornerShape(8.dp))
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize()
@@ -178,7 +172,7 @@ fun Court6x6View(
                     // CENTER NET
                     Box(
                         modifier = Modifier
-                            .width(10.dp)
+                            .width(8.dp)
                             .fillMaxHeight()
                             .background(
                                 Brush.verticalGradient(
@@ -196,7 +190,7 @@ fun Court6x6View(
                     ) {
                         Text(
                             text = "NET",
-                            fontSize = 7.sp,
+                            fontSize = 6.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
@@ -216,7 +210,7 @@ fun Court6x6View(
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             // Legend
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -224,17 +218,17 @@ fun Court6x6View(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(VolleyballGold))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("P1: Active Server", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(VolleyballGold))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("P1: Active Server", fontSize = 8.5.sp, color = Color(0xFF94A3B8))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(LiberoBadge))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("[L]: Libero", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(LiberoBadge))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("[L]: Libero", fontSize = 8.5.sp, color = Color(0xFF94A3B8))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("--- Attack Line (3m)", fontSize = 10.sp, color = Color(0xFF64748B))
+                    Text("--- Attack Line (3m)", fontSize = 8.5.sp, color = Color(0xFF64748B))
                 }
             }
         }
@@ -258,7 +252,7 @@ private fun HalfCourtView(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .padding(4.dp)
+            .padding(2.dp)
     ) {
         if (isLeftCourt) {
             // BACK ZONE (P5 top, P6 middle, P1 bottom)
@@ -266,7 +260,7 @@ private fun HalfCourtView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(end = 2.dp),
+                    .padding(end = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 PlayerCard(5, rotation.playerAt(5), isServer = false, team = team, onPlayerClick = onPlayerClick)
@@ -277,7 +271,7 @@ private fun HalfCourtView(
             // ATTACK LINE (3m)
             Box(
                 modifier = Modifier
-                    .width(2.dp)
+                    .width(1.5.dp)
                     .fillMaxHeight()
                     .background(Color(0xFF334155))
             )
@@ -287,7 +281,7 @@ private fun HalfCourtView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(start = 2.dp),
+                    .padding(start = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 PlayerCard(4, rotation.playerAt(4), isServer = false, team = team, onPlayerClick = onPlayerClick)
@@ -300,7 +294,7 @@ private fun HalfCourtView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(end = 2.dp),
+                    .padding(end = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 PlayerCard(2, rotation.playerAt(2), isServer = false, team = team, onPlayerClick = onPlayerClick)
@@ -311,7 +305,7 @@ private fun HalfCourtView(
             // ATTACK LINE (3m)
             Box(
                 modifier = Modifier
-                    .width(2.dp)
+                    .width(1.5.dp)
                     .fillMaxHeight()
                     .background(Color(0xFF334155))
             )
@@ -321,7 +315,7 @@ private fun HalfCourtView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(start = 2.dp),
+                    .padding(start = 1.5.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 PlayerCard(1, rotation.playerAt(1), isServer = isServing, team = team, onPlayerClick = onPlayerClick)
@@ -358,20 +352,20 @@ private fun PlayerCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(38.dp)
-            .clip(RoundedCornerShape(5.dp))
+            .height(32.dp)
+            .clip(RoundedCornerShape(4.dp))
             .background(backgroundColor)
             .border(
                 width = if (isServer) 1.5.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(5.dp)
+                shape = RoundedCornerShape(4.dp)
             )
             .clickable(enabled = player != null) {
                 if (player != null) {
                     onPlayerClick(pos, player)
                 }
             }
-            .padding(1.5.dp)
+            .padding(1.dp)
             .testTag("player_pos_${team.id}_$pos")
     ) {
         Column(
@@ -387,11 +381,11 @@ private fun PlayerCard(
                 Box(
                     modifier = Modifier
                         .background(Color(0xFF334155), RoundedCornerShape(2.dp))
-                        .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
+                        .padding(horizontal = 2.dp, vertical = 0.5.dp)
                 ) {
                     Text(
                         text = "P$pos",
-                        fontSize = 7.sp,
+                        fontSize = 6.5.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE2E8F0)
                     )
@@ -402,18 +396,18 @@ private fun PlayerCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(VolleyballGold, RoundedCornerShape(2.dp))
-                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
+                            .padding(horizontal = 2.dp, vertical = 0.5.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.SportsVolleyball,
                             contentDescription = "Server",
                             tint = CourtDark,
-                            modifier = Modifier.size(7.5.dp)
+                            modifier = Modifier.size(6.5.dp)
                         )
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(
                             text = "SERVE",
-                            fontSize = 6.5.sp,
+                            fontSize = 6.sp,
                             fontWeight = FontWeight.Black,
                             color = CourtDark
                         )
@@ -422,11 +416,11 @@ private fun PlayerCard(
                     Box(
                         modifier = Modifier
                             .background(LiberoBadge, RoundedCornerShape(2.dp))
-                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
+                            .padding(horizontal = 2.dp, vertical = 0.5.dp)
                     ) {
                         Text(
                             text = "L",
-                            fontSize = 7.sp,
+                            fontSize = 6.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -442,7 +436,7 @@ private fun PlayerCard(
             ) {
                 Text(
                     text = player?.let { "#${it.number}" } ?: "--",
-                    fontSize = 11.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Black,
                     color = if (isServer) VolleyballGold else Color.White
                 )
@@ -451,7 +445,7 @@ private fun PlayerCard(
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text = "(${player.role.code})",
-                        fontSize = 8.sp,
+                        fontSize = 7.sp,
                         color = Color(0xFF94A3B8),
                         fontWeight = FontWeight.Medium
                     )
@@ -464,7 +458,7 @@ private fun PlayerCard(
                     if (it.name.isNotBlank()) it.name + (if (it.isCaptain) " (C)" else "")
                     else if (it.isCaptain) "(C)" else ""
                 } ?: "Empty",
-                fontSize = 8.5.sp,
+                fontSize = 7.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFCBD5E1),
                 maxLines = 1,
